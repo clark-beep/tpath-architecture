@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Architecture: Clark OS vs TreasuryPath Optix</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0a; color: #e0e0e0; overflow-x: hidden; }
+  
+  .header { text-align: center; padding: 40px 20px 20px; }
+  .header h1 { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .header p { font-size: 14px; color: #888; max-width: 600px; margin: 0 auto; }
+  
+  .toggle-bar { display: flex; justify-content: center; gap: 8px; padding: 20px; position: sticky; top: 0; z-index: 100; background: #0a0a0a; }
+  .toggle-btn { padding: 10px 24px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: #aaa; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+  .toggle-btn.active { background: #5DF7B5; color: #000; border-color: #5DF7B5; }
+  .toggle-btn:hover:not(.active) { border-color: #555; color: #fff; }
+  
+  .container { display: flex; gap: 24px; padding: 0 24px 40px; max-width: 1400px; margin: 0 auto; }
+  .side { flex: 1; min-width: 0; }
+  .side-label { text-align: center; padding: 12px; margin-bottom: 16px; border-radius: 8px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .side-clark .side-label { background: linear-gradient(135deg, #6B4DB0 0%, #8B6DD0 100%); color: #fff; }
+  .side-tpath .side-label { background: linear-gradient(135deg, #0d9e5f 0%, #5DF7B5 100%); color: #000; }
+  
+  .node { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; }
+  .node:hover { border-color: #444; }
+  .node-header { padding: 14px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .node-header .icon { font-size: 20px; flex-shrink: 0; }
+  .node-header .title { font-weight: 600; font-size: 14px; color: #fff; }
+  .node-header .subtitle { font-size: 11px; color: #666; margin-top: 2px; }
+  .node-header .arrow { margin-left: auto; color: #555; transition: transform 0.2s; font-size: 12px; }
+  .node.open .node-header .arrow { transform: rotate(90deg); }
+  
+  .node-body { display: none; padding: 0 16px 14px; }
+  .node.open .node-body { display: block; }
+  
+  .detail { font-size: 12px; color: #999; line-height: 1.6; }
+  .detail strong { color: #ddd; }
+  .detail code { background: #1e1e1e; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #5DF7B5; }
+  
+  .sub-nodes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .sub-node { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 8px 12px; font-size: 11px; flex: 1; min-width: 120px; }
+  .sub-node .sn-title { font-weight: 600; color: #ddd; margin-bottom: 2px; }
+  .sub-node .sn-detail { color: #777; font-size: 10px; }
+  
+  .flow-arrow { text-align: center; color: #333; font-size: 20px; margin: 4px 0; }
+  
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+  .tag-purple { background: #6B4DB015; color: #8B6DD0; border: 1px solid #6B4DB030; }
+  .tag-green { background: #5DF7B515; color: #5DF7B5; border: 1px solid #5DF7B530; }
+  .tag-blue { background: #3B82F615; color: #60A5FA; border: 1px solid #3B82F630; }
+  .tag-amber { background: #F59E0B15; color: #FBBF24; border: 1px solid #F59E0B30; }
+  .tag-red { background: #EF444415; color: #F87171; border: 1px solid #EF444430; }
+  
+  .mapping { background: #0f1a14; border: 1px solid #1a3a2a; border-radius: 8px; padding: 10px 14px; margin-top: 8px; }
+  .mapping-label { font-size: 10px; color: #5DF7B5; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .section-divider { text-align: center; padding: 24px 0 12px; }
+  .section-divider span { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; background: #0a0a0a; padding: 0 16px; position: relative; }
+  .section-divider::before { content: ''; display: block; height: 1px; background: #222; position: relative; top: 18px; }
+
+  .view-single .container { flex-direction: column; max-width: 700px; }
+  .view-single .side { display: none; }
+  .view-single .side.active-side { display: block; }
+  
+  @media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AI Agent Architecture</h1>
+  <p>Side-by-side comparison: Clark (Jeff's AI COO) vs TreasuryPath Optix (AI agents for CFOs)</p>
+</div>
+
+<div class="toggle-bar">
+  <button class="toggle-btn active" onclick="setView('both')">Side by Side</button>
+  <button class="toggle-btn" onclick="setView('clark')">Clark Only</button>
+  <button class="toggle-btn" onclick="setView('tpath')">Optix Only</button>
+</div>
+
+<div class="container" id="main-container">
+
+<!-- ============ CLARK SIDE ============ -->
+<div class="side side-clark" id="side-clark">
+  <div class="side-label">🎄 Clark OS — Jeff's AI COO</div>
+
+  <!-- Layer 1: Channels -->
+  <div class="node open" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">📡</span>
+      <div><div class="title">Messaging Channels</div><div class="subtitle">How Jeff talks to Clark</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">Telegram</div><div class="sn-detail">Primary. Mobile-first. DMs.</div></div>
+        <div class="sub-node"><div class="sn-title">Discord</div><div class="sn-detail">Desktop. Team channels. Cron delivery.</div></div>
+        <div class="sub-node"><div class="sn-title">Slack (planned)</div><div class="sn-detail">TreasuryPath workspace. Bot token pending.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 2: Gateway -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🧠</span>
+      <div><div class="title">OpenClaw Gateway</div><div class="subtitle">Node.js daemon · ws://127.0.0.1:18789 · Always on</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail">
+        <strong>The central router.</strong> Runs as a macOS LaunchAgent on Jeff's Mac mini (192.168.7.172).<br><br>
+        <strong>Responsibilities:</strong><br>
+        • Routes messages → correct agent + session<br>
+        • Manages 53+ concurrent sessions<br>
+        • Fires heartbeat polls every 30 min<br>
+        • Executes cron jobs on schedule<br>
+        • Spawns/manages sub-agents (max 8 concurrent)<br>
+        • Handles auth, context pruning, token tracking
+      </div>
+      <div class="sub-nodes" style="margin-top:12px">
+        <div class="sub-node"><div class="sn-title">Sessions</div><div class="sn-detail">53 active · 200K token context · 69% cache hit</div></div>
+        <div class="sub-node"><div class="sn-title">Models</div><div class="sn-detail">Opus (primary) · Sonnet (content) · Gemini (brainstorm)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 3: Agents -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🤖</span>
+      <div><div class="title">Agents</div><div class="subtitle">2 agents · Claude Opus + Sonnet</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node" style="border-color:#6B4DB050">
+          <div class="sn-title">🎄 Clark (main)</div>
+          <div class="sn-detail">Claude Opus · Full tool access · Orchestrator<br>CEO/COO operations, strategy, content, deals, code</div>
+        </div>
+        <div class="sub-node" style="border-color:#F59E0B50">
+          <div class="sn-title">👤 Eddie (content)</div>
+          <div class="sn-detail">Claude Sonnet · Limited tools · Content drafting<br>Cheaper model for high-volume content work</div>
+        </div>
+      </div>
+      <div class="detail" style="margin-top:10px">
+        <strong>Sub-agents:</strong> Clark spawns temporary agents for parallel work (coding, research, reviews). Max 8 concurrent. Each gets isolated session + model.
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 4: Skills -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">📚</span>
+      <div><div class="title">Skills (113 total)</div><div class="subtitle">61 custom + 52 built-in · Domain expertise as markdown</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail">Each skill is a <code>SKILL.md</code> file that teaches the agent how to operate in a specific domain. Auto-selected based on task.</div>
+      <div class="sub-nodes" style="margin-top:8px">
+        <div class="sub-node"><div class="sn-title">C-Suite</div><div class="sn-detail">CEO · CFO · CMO · CPO · CTO · CISO</div></div>
+        <div class="sub-node"><div class="sn-title">GTM Pipeline</div><div class="sn-detail">ICP → Prospecting → Content → Outbound → Deals → Lifecycle</div></div>
+        <div class="sub-node"><div class="sn-title">Coding</div><div class="sn-detail">Plan → Execute → Review → Document</div></div>
+        <div class="sub-node"><div class="sn-title">Personal</div><div class="sn-detail">Coach · Travel · Personal CFO · Journal</div></div>
+        <div class="sub-node"><div class="sn-title">Ops</div><div class="sn-detail">GitHub · Google · Email · Apple Notes/Reminders</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 5: Memory -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🗄️</span>
+      <div><div class="title">Memory System</div><div class="subtitle">File-based · Markdown · Git-friendly</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">SOUL.md</div><div class="sn-detail">Personality, voice, behavior rules</div></div>
+        <div class="sub-node"><div class="sn-title">USER.md</div><div class="sn-detail">Jeff's context, preferences, style</div></div>
+        <div class="sub-node"><div class="sn-title">MEMORY.md</div><div class="sn-detail">Curated long-term memory (lessons, decisions)</div></div>
+        <div class="sub-node"><div class="sn-title">memory/YYYY-MM-DD.md</div><div class="sn-detail">35 daily log files (raw notes)</div></div>
+        <div class="sub-node"><div class="sn-title">activity-feed.md</div><div class="sn-detail">Timestamped action log</div></div>
+        <div class="sub-node"><div class="sn-title">BACKLOG.md</div><div class="sn-detail">Task queue (pulled during idle)</div></div>
+      </div>
+      <div class="detail" style="margin-top:8px">
+        <strong>Read order every session:</strong> SOUL → USER → today's memory → MEMORY.md<br>
+        <strong>No database.</strong> Everything is files. Easy to inspect, version, debug.
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 6: Tools -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🔧</span>
+      <div><div class="title">Tool Layer</div><div class="subtitle">Shell · Files · Web · Browser · APIs · Desktop</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">exec</div><div class="sn-detail">Run any shell command on Mac mini</div></div>
+        <div class="sub-node"><div class="sn-title">read/write/edit</div><div class="sn-detail">Full filesystem access</div></div>
+        <div class="sub-node"><div class="sn-title">web_search / web_fetch</div><div class="sn-detail">Brave Search + URL extraction</div></div>
+        <div class="sub-node"><div class="sn-title">browser / unbrowse</div><div class="sn-detail">Browser automation, API capture</div></div>
+        <div class="sub-node"><div class="sn-title">message</div><div class="sn-detail">Send to Telegram / Discord</div></div>
+        <div class="sub-node"><div class="sn-title">sessions_spawn</div><div class="sn-detail">Spawn sub-agents</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 7: External Services -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🌐</span>
+      <div><div class="title">External Services</div><div class="subtitle">APIs and integrations</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">HubSpot</div><div class="sn-detail">CRM · Deals · Contacts</div></div>
+        <div class="sub-node"><div class="sn-title">GitHub</div><div class="sn-detail">PRs · Issues · Code (read-only)</div></div>
+        <div class="sub-node"><div class="sn-title">Google</div><div class="sn-detail">Gmail · Calendar · Drive</div></div>
+        <div class="sub-node"><div class="sn-title">Taplio / Typefully</div><div class="sn-detail">LinkedIn + Twitter scheduling</div></div>
+        <div class="sub-node"><div class="sn-title">Loops.so</div><div class="sn-detail">Newsletter / email capture</div></div>
+        <div class="sub-node"><div class="sn-title">Gemini CLI</div><div class="sn-detail">Brainstorming partner</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 8: Automation -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">⚡</span>
+      <div><div class="title">Automation Layer</div><div class="subtitle">Heartbeat · Cron · Sub-agents</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node" style="border-color:#5DF7B550">
+          <div class="sn-title">💓 Heartbeat (30 min)</div>
+          <div class="sn-detail">Check email, calendar, Slack, GitHub, HubSpot. Pull from backlog when idle. Log everything.</div>
+        </div>
+        <div class="sub-node" style="border-color:#60A5FA50">
+          <div class="sn-title">⏰ Cron Jobs</div>
+          <div class="sn-detail">Daily deal checks · Weekly pipeline reports · Content intel scout · Morning briefs</div>
+        </div>
+        <div class="sub-node" style="border-color:#FBBF2450">
+          <div class="sn-title">🔀 Sub-Agents (max 8)</div>
+          <div class="sn-detail">Coding tasks · Research · PR reviews · Parallel work. Each gets isolated session.</div>
+        </div>
+      </div>
+      <div class="detail" style="margin-top:8px">
+        <strong>Silent hours:</strong> 11 PM – 7 AM unless urgent<br>
+        <strong>Human gates:</strong> External emails, public posts, spend &gt;$50
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TPATH SIDE ============ -->
+<div class="side side-tpath" id="side-tpath">
+  <div class="side-label">💚 TreasuryPath Optix — AI for CFOs</div>
+
+  <!-- Layer 1: Channels -->
+  <div class="node open" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">📡</span>
+      <div><div class="title">Customer Channels</div><div class="subtitle">How CFOs interact with Optix</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">Web App Chat</div><div class="sn-detail">Primary. Persistent copilot sidebar in the dashboard.</div></div>
+        <div class="sub-node"><div class="sn-title">Website Widget</div><div class="sn-detail">Pre-signup. 6-question onboarding → benchmark card.</div></div>
+        <div class="sub-node"><div class="sn-title">Slack / Email</div><div class="sn-detail">Deliver alerts, daily digests, action requests.</div></div>
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">Telegram/Discord → Web chat + Slack. Same concept: meet the user where they are.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 2: Gateway -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🧠</span>
+      <div><div class="title">Agent Router / Orchestrator</div><div class="subtitle">Central routing + multi-model LLM abstraction</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail">
+        <strong>Routes requests to the right agent.</strong> Like Clark's gateway, but multi-tenant (per-customer).<br><br>
+        <strong>LLM Router</strong> (from PLAN-ai-first-redesign.md):<br>
+        • <span class="tag tag-purple">Reasoning</span> Claude Opus → complex decisions (hedging, large transfers)<br>
+        • <span class="tag tag-blue">Tool calling</span> GPT → structured API calls to banking rails<br>
+        • <span class="tag tag-green">Classification</span> Haiku/Flash → fast triage, anomaly detection<br>
+        • <span class="tag tag-amber">Monitoring</span> Cheap models → scheduled checks, pattern matching
+      </div>
+      <div class="sub-nodes" style="margin-top:12px">
+        <div class="sub-node"><div class="sn-title">Per-Customer Sessions</div><div class="sn-detail">Isolated context per company. No data bleed.</div></div>
+        <div class="sub-node"><div class="sn-title">Onboarding State Machine</div><div class="sn-detail">anonymous → questions → estimation → signup → plaid → active</div></div>
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">Gateway + session isolation. Same pattern, multi-tenant scale. Clark's model aliases → LLM Router with task-based routing.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 3: Agents -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🤖</span>
+      <div><div class="title">Optix Agents</div><div class="subtitle">4 specialized agents · Domain-specific</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node" style="border-color:#5DF7B550">
+          <div class="sn-title">💰 Cash Ops Agent</div>
+          <div class="sn-detail">Monitors cash 24/7 · Prevents shortfalls · Investigates anomalies · Handles payment requests with compliance validation</div>
+        </div>
+        <div class="sub-node" style="border-color:#FBBF2450">
+          <div class="sn-title">🛡️ Risk Agent</div>
+          <div class="sn-detail">Fraud detection · Policy enforcement · Continuously learning · Adapts to new threats</div>
+        </div>
+        <div class="sub-node" style="border-color:#60A5FA50">
+          <div class="sn-title">📊 Treasury Agent</div>
+          <div class="sn-detail">FX hedging · Interest rate optimization · Liquidity management · Cash sweep automation</div>
+        </div>
+        <div class="sub-node" style="border-color:#C084FC50">
+          <div class="sn-title">📋 Compliance Agent</div>
+          <div class="sn-detail">Handle RFIs · Investigate false positives · Minimize human intervention · Adapt to regulations</div>
+        </div>
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">Clark (1 general agent) → 4 specialized agents. Same concept: each agent has distinct tools + permissions. Content agent can't browse; Compliance agent can't move money.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 4: Skills -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">📚</span>
+      <div><div class="title">Domain Skills</div><div class="subtitle">Playbooks per agent · Configurable per customer</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">Cash Ops Skills</div><div class="sn-detail">Cash positioning · Sweep rules · Shortfall prevention · Anomaly patterns</div></div>
+        <div class="sub-node"><div class="sn-title">Risk Skills</div><div class="sn-detail">Fraud patterns · Velocity checks · KYC/AML rules · Sanctions screening</div></div>
+        <div class="sub-node"><div class="sn-title">Treasury Skills</div><div class="sn-detail">FX hedging strategies · Interest rate benchmarks · Yield optimization · Multi-entity rules</div></div>
+        <div class="sub-node"><div class="sn-title">Compliance Skills</div><div class="sn-detail">RFI templates · SAR filing · Regulatory mapping · Audit trail</div></div>
+      </div>
+      <div class="detail" style="margin-top:8px">
+        <strong>Like Clark's SKILL.md files:</strong> each skill teaches the agent domain expertise. The key difference: skills can be configured per customer (different hedge thresholds, different sweep rules).
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">61 SKILL.md files → domain skill configs per agent per customer. Same architecture: markdown/YAML playbooks that make generic agents domain-specific.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 5: Memory -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🗄️</span>
+      <div><div class="title">Customer Memory</div><div class="subtitle">Per-company context · Preferences · History</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">Company Profile</div><div class="sn-detail">Entity structure, bank accounts, currencies, risk tolerance</div></div>
+        <div class="sub-node"><div class="sn-title">Decision Log</div><div class="sn-detail">Every action taken, who approved, outcome</div></div>
+        <div class="sub-node"><div class="sn-title">Preferences</div><div class="sn-detail">Alert thresholds, sweep rules, approval workflows</div></div>
+        <div class="sub-node"><div class="sn-title">Learning History</div><div class="sn-detail">What the agent learned about this company over time</div></div>
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">MEMORY.md + USER.md + daily logs → Customer profile + decision log + preferences. File-based in Clark → database-backed at scale, but same concept: persistent context that makes the agent smarter over time.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 6: Tools -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🔧</span>
+      <div><div class="title">Tool Layer</div><div class="subtitle">Banking APIs · Payment Rails · Data Sources</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">Plaid / Bank APIs</div><div class="sn-detail">Balance reads, transaction history, account linking</div></div>
+        <div class="sub-node"><div class="sn-title">Payment Rails</div><div class="sn-detail">ACH · Wire · SWIFT · SEPA · Card · Stablecoin</div></div>
+        <div class="sub-node"><div class="sn-title">FX Providers</div><div class="sn-detail">Rate queries, hedge execution, forward contracts</div></div>
+        <div class="sub-node"><div class="sn-title">Internal APIs</div><div class="sn-detail">Supabase DB · Forecasting engine · Estimation engine</div></div>
+        <div class="sub-node"><div class="sn-title">Notifications</div><div class="sn-detail">In-app · Slack · Email alerts</div></div>
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">Clark's exec/web/browser tools → banking and payment APIs. Same abstraction: agents call tools, tools talk to external systems. The agent never touches raw infra.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 7: External Services -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🌐</span>
+      <div><div class="title">External Integrations</div><div class="subtitle">Customer's financial ecosystem</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node"><div class="sn-title">Banks</div><div class="sn-detail">Chase · SVB · Mercury · First Republic · etc.</div></div>
+        <div class="sub-node"><div class="sn-title">ERPs</div><div class="sn-detail">NetSuite · QuickBooks · Xero</div></div>
+        <div class="sub-node"><div class="sn-title">Payment Processors</div><div class="sn-detail">Stripe · Brex · Ramp · Bill.com</div></div>
+        <div class="sub-node"><div class="sn-title">Compliance</div><div class="sn-detail">Sanctions lists · KYC providers · AML screening</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Layer 8: Automation -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">⚡</span>
+      <div><div class="title">Automation Layer</div><div class="subtitle">Proactive · Scheduled · Event-driven</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="sub-nodes">
+        <div class="sub-node" style="border-color:#5DF7B550">
+          <div class="sn-title">💓 Continuous Monitoring</div>
+          <div class="sn-detail">Cash position checks · Anomaly detection · FX exposure monitoring · Balance alerts</div>
+        </div>
+        <div class="sub-node" style="border-color:#60A5FA50">
+          <div class="sn-title">⏰ Scheduled Actions</div>
+          <div class="sn-detail">Daily cash positioning · Weekly FX review · Monthly compliance reports · Quarterly board data</div>
+        </div>
+        <div class="sub-node" style="border-color:#FBBF2450">
+          <div class="sn-title">🎯 Task Inbox</div>
+          <div class="sn-detail">Proactive actions surface in copilot. "Sweep $500K to money market?" CFO approves or dismisses.</div>
+        </div>
+      </div>
+      <div class="detail" style="margin-top:8px">
+        <strong>Human gates:</strong> Transfers above threshold · Hedging decisions · New vendor payments · Policy changes<br>
+        <strong>Auto-execute:</strong> Sweep to yield (pre-approved rules) · Alert on anomaly · Daily position report
+      </div>
+      <div class="mapping">
+        <div class="mapping-label">← Maps from Clark</div>
+        <div class="detail">Heartbeat → continuous monitoring. Cron → scheduled reports. BACKLOG.md → task inbox. Human-in-the-loop gates = same concept, different threshold (Clark: $50 spend. Optix: $X transfer).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ============ WORKOS DEEP DIVE ============ -->
+<div class="section-divider" style="padding:40px 0 20px">
+  <span>Deep Dive: How WorkOS Skills Actually Work</span>
+</div>
+
+<div style="max-width:900px;margin:0 auto;padding:0 24px 20px;">
+  <p style="color:#888;font-size:14px;text-align:center;margin-bottom:24px;">
+    Skills are the "brains" of Clark OS. Think of them like playbooks. When Jeff says <code>/cfo</code>, 
+    Clark loads a specific playbook that turns a general AI into a domain expert. Here's exactly how the CFO skill works, step by step.
+  </p>
+</div>
+
+<div style="max-width:900px;margin:0 auto;padding:0 24px;">
+
+  <!-- Step 1: Invocation -->
+  <div class="node open" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">1️⃣</span>
+      <div><div class="title">Jeff Types <code>/cfo</code></div><div class="subtitle">The trigger — in Telegram, Discord, or Claude Code</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail">
+        Jeff sends a message like <code>/cfo "let's talk burn rate"</code> or just <code>/cfo</code>. The gateway sees the <code>/</code> prefix, matches it to the CFO skill, and loads <code>skills/cfo/SKILL.md</code> into context.<br><br>
+        <strong>What actually happens:</strong><br>
+        • Gateway reads the 1,100-line SKILL.md file<br>
+        • Injects it into the AI's context window (like giving someone a manual before they start a job)<br>
+        • The AI now "becomes" CJ — the CFO persona — with all frameworks, benchmarks, and data paths loaded<br><br>
+        <strong>Think of it like:</strong> Handing a consultant a briefing book before a meeting. Same person, totally different expertise depending on which book they read.
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Step 2: Data Loading -->
+  <div class="node open" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">2️⃣</span>
+      <div><div class="title">Load the Company's Financial State</div><div class="subtitle">Read files from data/cfo/ + cross-skill data</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail">
+        First thing the CFO skill does: read the existing data to understand where things stand.
+      </div>
+      
+      <!-- Data flow diagram -->
+      <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;margin:16px 0;align-items:start;">
+        
+        <!-- Left: Input files -->
+        <div>
+          <div style="font-size:11px;color:#5DF7B5;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 CFO's Own Data</div>
+          <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">assumptions.json</div><div class="sn-detail">Revenue model: SaaS fees, FX take rate, yield on AUM. Scenario parameters (low/med/high). Valuation targets.</div></div>
+          <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">sync_history.json</div><div class="sn-detail">Every past conversation with metrics. "What did we discuss last time? What changed?"</div></div>
+          <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">latest_forecast.json</div><div class="sn-detail">Current 3-scenario financial model. The command center dashboard reads this file.</div></div>
+          <div class="sub-node"><div class="sn-title">forecasts/forecast_*.json</div><div class="sn-detail">Historical snapshots. Shows how projections evolved over time.</div></div>
+        </div>
+        
+        <!-- Arrow -->
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#333;font-size:24px;">→</div>
+        
+        <!-- Right: Cross-skill reads -->
+        <div>
+          <div style="font-size:11px;color:#60A5FA;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🔗 Reads from Other Skills</div>
+          <div class="sub-node" style="margin-bottom:6px;border-color:#F59E0B30"><div class="sn-title">CMO → data/gtm/</div><div class="sn-detail">Pipeline value, win rate, CAC by channel, marketing spend. Feeds Magic Number + sales efficiency.</div></div>
+          <div class="sub-node" style="margin-bottom:6px;border-color:#C084FC30"><div class="sn-title">CPO → data/product/</div><div class="sn-detail">PMF stage, AI cost per user, NPS, retention. Tells investors "is this working?"</div></div>
+          <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">CTO → data/engineering/</div><div class="sn-detail">Infra spend, headcount, open roles, tech debt. Major burn rate components.</div></div>
+        </div>
+      </div>
+      
+      <div style="background:#0f1a14;border:1px solid #1a3a2a;border-radius:8px;padding:10px 14px;margin-top:8px;">
+        <div style="font-size:10px;color:#5DF7B5;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">💡 Why This Matters</div>
+        <div class="detail">The CFO doesn't work in a vacuum. It pulls in marketing spend, engineering costs, and product health automatically. When Jeff asks "what's our burn multiple?", the answer includes real data from across the company — not just whatever the CFO saw last time.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Step 3: First Run vs Subsequent -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">3️⃣</span>
+      <div><div class="title">First Run vs. Returning</div><div class="subtitle">Bootstrap if new, compare if returning</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:#1a1a1a;border:1px solid #F59E0B30;border-radius:8px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#FBBF24;margin-bottom:6px;">🆕 First Run (No History)</div>
+          <div class="detail">
+            No <code>sync_history.json</code> found. CJ introduces himself and asks for baseline numbers:<br><br>
+            • Cash position, monthly burn<br>
+            • Current MRR, client count<br>
+            • GTV, AUM<br>
+            • CAC, LTV, NRR, gross margin<br>
+            • AI inference spend<br><br>
+            Creates the <code>data/cfo/</code> directory structure and initial files.
+          </div>
+        </div>
+        <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🔄 Returning (Has History)</div>
+          <div class="detail">
+            Reads last sync, compares to new input:<br><br>
+            • Parse whatever Jeff provides (text, numbers, files, conversation)<br>
+            • Compare metrics to last sync<br>
+            • Calculate efficiency metrics<br>
+            • Recalculate 3-scenario forecast<br>
+            • Challenge anything that looks off<br>
+            • Write updated forecast files<br>
+            • Append to sync history
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Step 4: The Frameworks -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">4️⃣</span>
+      <div><div class="title">Apply Financial Frameworks</div><div class="subtitle">9 frameworks — the "how to think" layer</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail" style="margin-bottom:12px">Every conversation runs through these mental models. They're not optional — they're baked into the persona.</div>
+      
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div class="sub-node" style="border-color:#EF444430">
+          <div class="sn-title">🔥 Burn Multiple</div>
+          <div class="sn-detail">Net Burn ÷ Net New ARR. &lt;1x amazing. &gt;3x dangerous. "Cash bonfire" check.</div>
+        </div>
+        <div class="sub-node" style="border-color:#5DF7B530">
+          <div class="sn-title">📊 Five Pillars</div>
+          <div class="sn-detail">Growth + Retention + Margin + Sales Efficiency + Profitability. All five, not just one.</div>
+        </div>
+        <div class="sub-node" style="border-color:#60A5FA30">
+          <div class="sn-title">📐 Rule of X</div>
+          <div class="sn-detail">(Growth × 2-3x) + FCF Margin. Weights growth over margin because growth compounds.</div>
+        </div>
+        <div class="sub-node" style="border-color:#FBBF2430">
+          <div class="sn-title">🎯 Sales Efficiency</div>
+          <div class="sn-detail">Magic Number, CAC Payback, LTV/CAC. "Is each dollar of marketing creating value?"</div>
+        </div>
+        <div class="sub-node" style="border-color:#C084FC30">
+          <div class="sn-title">📉 Tri-Scenario</div>
+          <div class="sn-detail">Low / Medium / High. EVERY forecast, no exceptions. "Real CFOs think in scenarios."</div>
+        </div>
+        <div class="sub-node" style="border-color:#F4724730">
+          <div class="sn-title">🔬 Unit Economics</div>
+          <div class="sn-detail">"What do you make per customer after fully-loaded costs?" Vanity metrics get called out.</div>
+        </div>
+        <div class="sub-node" style="border-color:#22D3EE30">
+          <div class="sn-title">🤖 AI Economics</div>
+          <div class="sn-detail">Cost per inference, AI margin impact. AI changes COGS from fixed to variable.</div>
+        </div>
+        <div class="sub-node" style="border-color:#FB923C30">
+          <div class="sn-title">🎭 Investor Personas</div>
+          <div class="sn-detail">5 investor archetypes. Different pitch for fintech specialist vs AI-first vs generalist.</div>
+        </div>
+        <div class="sub-node" style="border-color:#A3E63530">
+          <div class="sn-title">🗓️ Fundraise Timeline</div>
+          <div class="sn-detail">4-phase roadmap with stage gates. Don't talk to VCs until you have transactions flowing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Step 5: The Sparring Protocol -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">5️⃣</span>
+      <div><div class="title">The "Sparring" Protocol</div><div class="subtitle">CJ challenges every metric — curious, not condescending</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail" style="margin-bottom:12px">This is what makes the CFO skill different from a spreadsheet. It <em>pushes back</em>.</div>
+      
+      <div style="background:#1a1a1a;border-left:3px solid #FBBF24;padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:8px;">
+        <div style="font-size:12px;color:#FBBF24;font-weight:600;margin-bottom:4px;">Example Pushbacks:</div>
+        <div class="detail" style="font-style:italic;">
+          "Your burn multiple is 3x. That means you're spending $3 to generate $1 of ARR. That's not a growth story, that's a cash bonfire."<br><br>
+          "You're showing me GMV, but I want to see gross margin. What's the actual unit economics on each transaction?"<br><br>
+          "Look, I get why you want to believe this number, but VCs are going to poke holes in it fast."
+        </div>
+      </div>
+      
+      <div class="detail">
+        <strong>The persona is "CJ"</strong> — conversational, uses dad jokes (badly, on purpose), irreverent about "boring" finance topics. Self-aware. Never pretentious. But rigorous underneath the banter.
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Step 6: Output -->
+  <div class="node open" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">6️⃣</span>
+      <div><div class="title">Dual Output: Text + Data</div><div class="subtitle">Every interaction produces two things</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:#1a1a1a;border:1px solid #C084FC30;border-radius:8px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#C084FC;margin-bottom:6px;">💬 Strategic Feedback (for Jeff)</div>
+          <div class="detail">
+            Written in CJ's voice. Four sections:<br><br>
+            <strong>1. VC Reality Check</strong> — honest progress assessment<br>
+            <strong>2. Numbers That Matter</strong> — key metrics with framework analysis<br>
+            <strong>3. Highest Leverage Action</strong> — THE one thing to focus on<br>
+            <strong>4. Hard Questions</strong> — what VCs will ask (have answers ready)
+          </div>
+        </div>
+        <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">📊 Financial Model (for machines)</div>
+          <div class="detail">
+            JSON files written to disk:<br><br>
+            <strong>latest_forecast.json</strong> — current 3-scenario model (dashboard reads this)<br>
+            <strong>forecasts/forecast_YYYY-MM-DD.json</strong> — historical snapshot<br>
+            <strong>sync_history.json</strong> — appended with this conversation's data<br><br>
+            These files power the command center dashboard and future conversations.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow">↓</div>
+
+  <!-- Step 7: Child Skills -->
+  <div class="node" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">7️⃣</span>
+      <div><div class="title">Delegate to Execution Skills</div><div class="subtitle">CFO is the strategist. These are the doers.</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <div class="detail" style="margin-bottom:12px">When the conversation requires deeper work, the CFO tells Jeff to invoke a child skill:</div>
+      
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+        <div class="sub-node" style="border-color:#5DF7B530">
+          <div class="sn-title">/finance-forecast</div>
+          <div class="sn-detail">Detailed scenario modeling. Revenue projections. Monthly granularity. The spreadsheet work.</div>
+        </div>
+        <div class="sub-node" style="border-color:#60A5FA30">
+          <div class="sn-title">/cap-table</div>
+          <div class="sn-detail">Equity tracking. Dilution analysis. Option pool modeling. "What happens to Jeff's ownership at Series A?"</div>
+        </div>
+        <div class="sub-node" style="border-color:#FBBF2430">
+          <div class="sn-title">/board-deck</div>
+          <div class="sn-detail">Quarterly board presentations. Metrics + narrative + strategic asks. Ready to present.</div>
+        </div>
+        <div class="sub-node" style="border-color:#C084FC30">
+          <div class="sn-title">/fundraise-prep</div>
+          <div class="sn-detail">Data room. VC Q&A prep. Due diligence checklists. "Are we ready for investors to kick the tires?"</div>
+        </div>
+      </div>
+      
+      <div style="background:#0f1a14;border:1px solid #1a3a2a;border-radius:8px;padding:10px 14px;margin-top:12px;">
+        <div style="font-size:10px;color:#5DF7B5;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">🏗️ The Pattern</div>
+        <div class="detail">This is how ALL skills work in Clark OS. An orchestrator skill (CFO) handles strategy and context. Execution skills handle the detailed work. The CFO <em>reads data from</em> CMO/CPO/CTO and <em>delegates to</em> finance-forecast/cap-table/board-deck/fundraise-prep. Data flows through JSON files on disk. No database. No API. Just files that any skill can read.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-arrow" style="font-size:24px;padding:8px 0;">↓</div>
+
+  <!-- The Big Picture -->
+  <div class="node open" onclick="toggleNode(this)">
+    <div class="node-header">
+      <span class="icon">🗺️</span>
+      <div><div class="title">The Full Data Flow</div><div class="subtitle">How everything connects — one picture</div></div>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="node-body">
+      <pre style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;padding:16px;font-size:11px;color:#999;line-height:1.7;overflow-x:auto;font-family:'SF Mono',Monaco,monospace;">
+<span style="color:#888;">Jeff says:</span> <span style="color:#5DF7B5;">/cfo "what's our burn multiple?"</span>
+
+        <span style="color:#555;">│</span>
+        <span style="color:#555;">▼</span>
+<span style="color:#C084FC;">┌─────────────────────────────────────────┐</span>
+<span style="color:#C084FC;">│</span>  <span style="color:#fff;">OpenClaw Gateway</span>                        <span style="color:#C084FC;">│</span>
+<span style="color:#C084FC;">│</span>  Matches /cfo → loads SKILL.md           <span style="color:#C084FC;">│</span>
+<span style="color:#C084FC;">│</span>  AI becomes "CJ" (CFO persona)           <span style="color:#C084FC;">│</span>
+<span style="color:#C084FC;">└─────────────────────────────────────────┘</span>
+        <span style="color:#555;">│</span>
+        <span style="color:#555;">▼</span>
+<span style="color:#60A5FA;">┌─────────────────────────────────────────┐</span>
+<span style="color:#60A5FA;">│</span>  <span style="color:#fff;">Read Data</span>                                <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>                                           <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>  data/cfo/assumptions.json    <span style="color:#666;">(own data)</span>  <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>  data/cfo/sync_history.json   <span style="color:#666;">(history)</span>   <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>  data/cfo/latest_forecast.json <span style="color:#666;">(current)</span>  <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>  data/gtm/gtm_scorecard.json  <span style="color:#666;">(from CMO)</span> <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>  data/product/strategy.json   <span style="color:#666;">(from CPO)</span> <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">│</span>  data/engineering/infra_costs  <span style="color:#666;">(from CTO)</span> <span style="color:#60A5FA;">│</span>
+<span style="color:#60A5FA;">└─────────────────────────────────────────┘</span>
+        <span style="color:#555;">│</span>
+        <span style="color:#555;">▼</span>
+<span style="color:#FBBF24;">┌─────────────────────────────────────────┐</span>
+<span style="color:#FBBF24;">│</span>  <span style="color:#fff;">Process & Challenge</span>                      <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">│</span>                                           <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">│</span>  Apply 9 frameworks                       <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">│</span>  Compare to last sync                     <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">│</span>  Run sparring protocol                    <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">│</span>  Calculate burn multiple, Rule of X, etc.  <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">│</span>  Generate 3-scenario forecast              <span style="color:#FBBF24;">│</span>
+<span style="color:#FBBF24;">└─────────────────────────────────────────┘</span>
+        <span style="color:#555;">│</span>
+   <span style="color:#555;">┌────┴────┐</span>
+   <span style="color:#555;">▼</span>         <span style="color:#555;">▼</span>
+<span style="color:#C084FC;">┌──────────┐</span>  <span style="color:#5DF7B5;">┌──────────────────┐</span>
+<span style="color:#C084FC;">│</span> <span style="color:#fff;">Text</span>     <span style="color:#C084FC;">│</span>  <span style="color:#5DF7B5;">│</span> <span style="color:#fff;">JSON Files</span>       <span style="color:#5DF7B5;">│</span>
+<span style="color:#C084FC;">│</span> to Jeff  <span style="color:#C084FC;">│</span>  <span style="color:#5DF7B5;">│</span> to disk          <span style="color:#5DF7B5;">│</span>
+<span style="color:#C084FC;">│</span> <span style="color:#888;">(voice)</span>  <span style="color:#C084FC;">│</span>  <span style="color:#5DF7B5;">│</span> <span style="color:#888;">(forecast.json)</span>  <span style="color:#5DF7B5;">│</span>
+<span style="color:#C084FC;">└──────────┘</span>  <span style="color:#5DF7B5;">└──────────────────┘</span>
+                    <span style="color:#555;">│</span>
+              <span style="color:#555;">┌─────┼─────┐</span>
+              <span style="color:#555;">▼</span>     <span style="color:#555;">▼</span>     <span style="color:#555;">▼</span>
+          <span style="color:#666;">Dashboard</span>  <span style="color:#666;">Other</span>   <span style="color:#666;">Future</span>
+          <span style="color:#666;">reads it</span>   <span style="color:#666;">skills</span>  <span style="color:#666;">syncs</span>
+</pre>
+    </div>
+  </div>
+
+  <!-- Summary callout -->
+  <div style="background:linear-gradient(135deg, #6B4DB015, #5DF7B510);border:1px solid #6B4DB030;border-radius:12px;padding:20px;margin-top:24px;">
+    <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;">TL;DR — How WorkOS Skills Work</div>
+    <div style="font-size:13px;color:#bbb;line-height:1.7;">
+      <strong style="color:#5DF7B5;">1.</strong> Jeff invokes a skill (<code>/cfo</code>, <code>/cmo</code>, etc.)<br>
+      <strong style="color:#5DF7B5;">2.</strong> A markdown playbook loads into the AI's context, giving it domain expertise + a persona<br>
+      <strong style="color:#5DF7B5;">3.</strong> The skill reads JSON data files from disk (its own + other skills')<br>
+      <strong style="color:#5DF7B5;">4.</strong> The AI processes using embedded frameworks and pushes back on bad assumptions<br>
+      <strong style="color:#5DF7B5;">5.</strong> Output: human-readable advice + machine-readable JSON written to files<br>
+      <strong style="color:#5DF7B5;">6.</strong> Those files feed dashboards, other skills, and future conversations<br><br>
+      <strong style="color:#fff;">No database. No API. Just markdown playbooks + JSON files + a really good AI.</strong> The same pattern powers all 61 custom skills — CEO, CMO, CPO, CTO, CISO, GTM pipeline, coaching, travel, everything.
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;padding:40px 20px 60px;color:#555;font-size:12px;">
+  Built by Clark · Feb 24, 2026 · TreasuryPath Internal
+</div>
+
+<script>
+function toggleNode(el) {
+  el.classList.toggle('open');
+}
+
+function setView(view) {
+  const btns = document.querySelectorAll('.toggle-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  const container = document.getElementById('main-container');
+  const clark = document.getElementById('side-clark');
+  const tpath = document.getElementById('side-tpath');
+  
+  container.classList.remove('view-single');
+  clark.classList.remove('active-side');
+  tpath.classList.remove('active-side');
+  clark.style.display = '';
+  tpath.style.display = '';
+  
+  if (view === 'clark') {
+    container.classList.add('view-single');
+    clark.classList.add('active-side');
+    clark.style.display = 'block';
+    tpath.style.display = 'none';
+  } else if (view === 'tpath') {
+    container.classList.add('view-single');
+    tpath.classList.add('active-side');
+    tpath.style.display = 'block';
+    clark.style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>
