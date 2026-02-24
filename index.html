@@ -12,7 +12,19 @@
   .header h1 { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 8px; }
   .header .accent { color: #5DF7B5; }
   .header p { font-size: 15px; color: #888; max-width: 640px; margin: 0 auto; line-height: 1.6; }
-  
+
+  /* Skill Selector */
+  .skill-selector { display: flex; gap: 8px; justify-content: center; padding: 24px 20px 8px; flex-wrap: wrap; }
+  .skill-btn { padding: 12px 20px; border-radius: 10px; border: 1px solid #2a2a2a; background: #141414; cursor: pointer; transition: all 0.2s; text-align: center; min-width: 100px; }
+  .skill-btn:hover { border-color: #444; }
+  .skill-btn.active { border-color: var(--skill-color); background: color-mix(in srgb, var(--skill-color) 10%, #141414); }
+  .skill-btn .skill-icon { font-size: 20px; margin-bottom: 4px; }
+  .skill-btn .skill-label { font-size: 12px; font-weight: 600; color: #999; }
+  .skill-btn.active .skill-label { color: var(--skill-color); }
+
+  .skill-section { display: none; }
+  .skill-section.active { display: block; }
+
   .intro-box { max-width: 800px; margin: 24px auto 8px; padding: 0 24px; }
   .intro-box .callout { background: linear-gradient(135deg, #6B4DB015, #5DF7B510); border: 1px solid #6B4DB030; border-radius: 12px; padding: 20px; font-size: 14px; color: #bbb; line-height: 1.7; }
   .intro-box .callout strong { color: #fff; }
@@ -28,32 +40,40 @@
   .node-header .subtitle { font-size: 11px; color: #666; margin-top: 2px; }
   .node-header .arrow { margin-left: auto; color: #555; transition: transform 0.2s; font-size: 12px; }
   .node.open .node-header .arrow { transform: rotate(90deg); }
-  
   .node-body { display: none; padding: 0 16px 14px; }
   .node.open .node-body { display: block; }
-  
   .detail { font-size: 12px; color: #999; line-height: 1.6; }
   .detail strong { color: #ddd; }
   .detail code { background: #1e1e1e; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #5DF7B5; }
   .detail em { color: #bbb; }
-  
-  .sub-nodes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .sub-node { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 8px 12px; font-size: 11px; flex: 1; min-width: 120px; }
   .sub-node .sn-title { font-weight: 600; color: #ddd; margin-bottom: 2px; }
   .sub-node .sn-detail { color: #777; font-size: 10px; }
-  
   .flow-arrow { text-align: center; color: #333; font-size: 20px; margin: 4px 0; }
-
   .section-divider { text-align: center; padding: 32px 0 16px; }
   .section-divider span { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; background: #0a0a0a; padding: 0 16px; position: relative; }
   .section-divider::before { content: ''; display: block; height: 1px; background: #222; position: relative; top: 18px; }
-
   .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px; }
+  .pushback-box { background: #1a1a1a; border-left: 3px solid; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 8px; }
+  .pushback-label { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .data-grid { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 8px; margin: 16px 0; align-items: start; }
+  .data-col-label { font-size: 11px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .insight-box { background: #0f1a14; border: 1px solid #1a3a2a; border-radius: 8px; padding: 10px 14px; margin-top: 8px; }
+  .insight-label { font-size: 10px; color: #5DF7B5; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .output-card { background: #1a1a1a; border: 1px solid; border-radius: 8px; padding: 12px; }
+  .output-card-title { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+  .child-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
   @media (max-width: 600px) {
     .header h1 { font-size: 24px; }
     .skill-grid { grid-template-columns: 1fr 1fr; }
-    .sub-nodes { flex-direction: column; }
+    .data-grid { grid-template-columns: 1fr; }
+    .data-grid > div:nth-child(2) { display: none; }
+    .output-grid { grid-template-columns: 1fr; }
+    .child-grid { grid-template-columns: 1fr; }
+    .skill-selector { gap: 4px; }
+    .skill-btn { min-width: 60px; padding: 8px 12px; }
   }
 </style>
 </head>
@@ -61,373 +81,461 @@
 
 <div class="header">
   <h1>Work<span class="accent">OS</span></h1>
-  <p>How TreasuryPath's AI skill system turns a general-purpose AI into a team of domain experts. No database. No API. Just markdown playbooks, JSON files, and a really good model.</p>
+  <p>How TreasuryPath's AI skill system turns a general-purpose AI into a team of domain experts. Click a skill below to see exactly how it works.</p>
 </div>
 
-<div class="intro-box">
-  <div class="callout">
-    <strong>The idea:</strong> When you say <code>/cfo</code>, the AI loads a 1,100-line playbook that teaches it finance frameworks, gives it a persona, tells it where the data lives, and defines exactly what to output. Same AI, totally different expertise depending on which playbook it reads. Like handing a consultant a different briefing book before each meeting.<br><br>
-    This page walks through the CFO skill as a concrete example. The same pattern powers all 61 skills across CEO, CMO, CPO, CTO, CISO, GTM, coaching, travel, and more.
+<!-- Skill Selector -->
+<div class="skill-selector">
+  <div class="skill-btn active" style="--skill-color:#EF4444" onclick="showSkill('ceo')">
+    <div class="skill-icon">👑</div>
+    <div class="skill-label">CEO</div>
+  </div>
+  <div class="skill-btn" style="--skill-color:#5DF7B5" onclick="showSkill('cfo')">
+    <div class="skill-icon">💰</div>
+    <div class="skill-label">CFO</div>
+  </div>
+  <div class="skill-btn" style="--skill-color:#F59E0B" onclick="showSkill('cmo')">
+    <div class="skill-icon">📢</div>
+    <div class="skill-label">CMO</div>
+  </div>
+  <div class="skill-btn" style="--skill-color:#C084FC" onclick="showSkill('cpo')">
+    <div class="skill-icon">🎯</div>
+    <div class="skill-label">CPO</div>
+  </div>
+  <div class="skill-btn" style="--skill-color:#22D3EE" onclick="showSkill('cto')">
+    <div class="skill-icon">⚙️</div>
+    <div class="skill-label">CTO</div>
   </div>
 </div>
 
+<!-- ==================== CEO ==================== -->
+<div id="skill-ceo" class="skill-section active">
+<div class="intro-box"><div class="callout">
+  <strong>The CEO skill</strong> sits above the entire C-suite. When Jeff says <code>/ceo</code>, the AI becomes a strategic sparring partner for the decisions that can't be delegated — capital allocation, organizational design, and the moments when the buck truly stops. It reads data from <em>every other skill</em> because the CEO sees the whole picture.
+</div></div>
 <div class="container">
-
   <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
 
-  <!-- Step 1 -->
-  <div class="node open" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">1️⃣</span>
-      <div><div class="title">Invoke: <code>/cfo</code></div><div class="subtitle">Jeff types a command in Telegram, Discord, or Claude Code</div></div>
-      <span class="arrow">▶</span>
-    </div>
-    <div class="node-body">
-      <div class="detail">
-        Jeff sends something like <code>/cfo "let's talk burn rate"</code>. The gateway sees the <code>/</code> prefix, matches it to the CFO skill, and loads <code>skills/cfo/SKILL.md</code> into context.<br><br>
-        <strong>What actually happens:</strong><br>
-        • Gateway reads the 1,100-line SKILL.md file<br>
-        • Injects it into the AI's context window<br>
-        • The AI now "becomes" CJ — the CFO persona — with all frameworks, benchmarks, and data paths loaded<br><br>
-        <strong>Any channel works.</strong> Telegram DM, Discord thread, Claude Code terminal. The gateway routes it the same way regardless of where it came from.
-      </div>
-    </div>
-  </div>
-
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/ceo</code></div><div class="subtitle">Jeff types the command from any channel</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/ceo "should we raise now or wait?"</code>. Gateway loads <code>skills/ceo/SKILL.md</code> — 421 lines of founder-CEO strategy, frameworks, and pushback protocols. The AI becomes a wartime counselor who's read Ben Horowitz, studied systems thinking, and won't let Jeff avoid the hard calls.</div></div></div>
   <div class="flow-arrow">↓</div>
 
-  <!-- Step 2 -->
-  <div class="node open" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">2️⃣</span>
-      <div><div class="title">Load Financial State</div><div class="subtitle">Read own data + pull from other skills</div></div>
-      <span class="arrow">▶</span>
-    </div>
-    <div class="node-body">
-      <div class="detail">First thing the skill does: read existing data to understand where things stand.</div>
-      
-      <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;margin:16px 0;align-items:start;">
-        <div>
-          <div style="font-size:11px;color:#5DF7B5;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 CFO's Own Data</div>
-          <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">assumptions.json</div><div class="sn-detail">Revenue model: SaaS fees, FX take rate, yield on AUM. Scenario parameters. Valuation targets.</div></div>
-          <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">sync_history.json</div><div class="sn-detail">Every past conversation with metrics. "What did we discuss last time?"</div></div>
-          <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">latest_forecast.json</div><div class="sn-detail">Current 3-scenario financial model. The dashboard reads this file.</div></div>
-          <div class="sub-node"><div class="sn-title">forecasts/forecast_*.json</div><div class="sn-detail">Historical snapshots. How projections evolved over time.</div></div>
-        </div>
-        
-        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#333;font-size:24px;">→</div>
-        
-        <div>
-          <div style="font-size:11px;color:#60A5FA;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🔗 Cross-Skill Reads</div>
-          <div class="sub-node" style="margin-bottom:6px;border-color:#F59E0B30"><div class="sn-title">CMO → data/gtm/</div><div class="sn-detail">Pipeline value, win rate, CAC by channel, marketing spend. Feeds Magic Number + sales efficiency.</div></div>
-          <div class="sub-node" style="margin-bottom:6px;border-color:#C084FC30"><div class="sn-title">CPO → data/product/</div><div class="sn-detail">PMF stage, AI cost per user, NPS, retention. Tells investors "is this working?"</div></div>
-          <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">CTO → data/engineering/</div><div class="sn-detail">Infra spend, headcount, open roles, tech debt. Major burn rate components.</div></div>
-        </div>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load the Full Picture</div><div class="subtitle">CEO reads ALL skill data — the only skill that does this</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="data-grid">
+      <div>
+        <div class="data-col-label" style="color:#EF4444;">📂 CEO's Own Data</div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">strategy.json</div><div class="sn-detail">Vision, current priorities, big bets, existential risks. Wartime or peacetime mode.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">hard_conversations.json</div><div class="sn-detail">Conversations Jeff is avoiding. Who, why, and the cost of waiting.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">decisions/</div><div class="sn-detail">Major CEO decisions with context and outcomes.</div></div>
+        <div class="sub-node"><div class="sn-title">board/</div><div class="sn-detail">Board prep, meeting notes, investor relationships.</div></div>
       </div>
-      
-      <div style="background:#0f1a14;border:1px solid #1a3a2a;border-radius:8px;padding:10px 14px;margin-top:8px;">
-        <div style="font-size:10px;color:#5DF7B5;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">💡 Why Cross-Skill Reads Matter</div>
-        <div class="detail">The CFO doesn't work in a vacuum. It pulls marketing spend, engineering costs, and product health automatically. When Jeff asks "what's our burn multiple?", the answer includes real data from across the company — not just whatever the CFO saw last time.</div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#333;font-size:24px;">→</div>
+      <div>
+        <div class="data-col-label" style="color:#60A5FA;">🔗 Reads from EVERYONE</div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#5DF7B530"><div class="sn-title">CFO → data/cfo/</div><div class="sn-detail">Runway, burn rate, forecast. "Are we going to run out of money?"</div></div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#F59E0B30"><div class="sn-title">CMO → data/gtm/</div><div class="sn-detail">Pipeline, win rate, GTM health. "Is the growth engine working?"</div></div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#C084FC30"><div class="sn-title">CPO → data/product/</div><div class="sn-detail">PMF status, roadmap, retention. "Do customers love this?"</div></div>
+        <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">CTO → data/engineering/</div><div class="sn-detail">Tech health, infra costs, team capacity. "Can we ship fast enough?"</div></div>
       </div>
     </div>
-  </div>
-
+    <div class="insight-box"><div class="insight-label">👑 The CEO Difference</div><div class="detail">The CEO is the only skill that reads from all four other C-suite data directories. Every other skill reads 1-2 peers. The CEO sees the whole board.</div></div>
+  </div></div>
   <div class="flow-arrow">↓</div>
 
-  <!-- Step 3 -->
-  <div class="node" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">3️⃣</span>
-      <div><div class="title">First Run vs. Returning</div><div class="subtitle">Bootstrap if new, compare if returning</div></div>
-      <span class="arrow">▶</span>
-    </div>
-    <div class="node-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="background:#1a1a1a;border:1px solid #F59E0B30;border-radius:8px;padding:12px;">
-          <div style="font-size:12px;font-weight:600;color:#FBBF24;margin-bottom:6px;">🆕 First Run</div>
-          <div class="detail">
-            No history found. CJ introduces himself and asks for baseline numbers:<br><br>
-            • Cash position, monthly burn<br>
-            • Current MRR, client count<br>
-            • GTV, AUM<br>
-            • CAC, LTV, NRR, gross margin<br>
-            • AI inference spend<br><br>
-            Creates the <code>data/cfo/</code> directory and initial files.
-          </div>
-        </div>
-        <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;">
-          <div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🔄 Returning</div>
-          <div class="detail">
-            Reads last sync, compares to new input:<br><br>
-            • Parse whatever Jeff provides (text, files, conversation)<br>
-            • Compare metrics to last sync<br>
-            • Calculate efficiency metrics<br>
-            • Recalculate 3-scenario forecast<br>
-            • Challenge anything that looks off<br>
-            • Write updated files, append to history
-          </div>
-        </div>
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">3️⃣</span><div><div class="title">Wartime or Peacetime?</div><div class="subtitle">First assessment: what mode is the company in?</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#1a1a1a;border:1px solid #EF444430;border-radius:8px;padding:12px;">
+        <div style="font-size:12px;font-weight:600;color:#EF4444;margin-bottom:6px;">⚔️ Wartime</div>
+        <div class="detail">Existential threat. Pivoting. Running out of money. Cash is tight, market shifted, competitor raised $50M.<br><br>CEO behavior: Direct, decide, cut. Speed over consensus. No peacetime luxuries.</div>
+      </div>
+      <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;">
+        <div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🕊️ Peacetime</div>
+        <div class="detail">Growing. PMF achieved. Runway secure. Things are working and the challenge is scaling what's working.<br><br>CEO behavior: Delegate, develop, expand. Invest in culture and systems.</div>
       </div>
     </div>
-  </div>
-
+    <div class="insight-box"><div class="insight-label">⚠️ Reality Check</div><div class="detail"><strong>Most startups are in wartime.</strong> Don't run a peacetime playbook in wartime. The skill checks strategy.json for the current mode and adjusts all advice accordingly.</div></div>
+  </div></div>
   <div class="flow-arrow">↓</div>
 
-  <!-- Step 4 -->
-  <div class="node" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">4️⃣</span>
-      <div><div class="title">Apply Financial Frameworks</div><div class="subtitle">9 embedded frameworks — the "how to think" layer</div></div>
-      <span class="arrow">▶</span>
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">4️⃣</span><div><div class="title">Apply CEO Frameworks</div><div class="subtitle">6 frameworks for the decisions only a CEO can make</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="skill-grid">
+      <div class="sub-node" style="border-color:#EF444430"><div class="sn-title">⚔️ Wartime vs Peacetime</div><div class="sn-detail">Assess the mode. Different situations demand different CEO behavior.</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">📅 Calendar Audit</div><div class="sn-detail">How should a CEO spend time? Strategy 20%, People 30%, External 25%, Ops 15%, Personal 10%.</div></div>
+      <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">🎯 Decision Rights</div><div class="sn-detail">Type 1 (irreversible, CEO decides), Type 2 (reversible, delegate), Type 3 (don't even review).</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">💬 Hard Conversations</div><div class="sn-detail">Track conversations you're avoiding. If it's been >2 weeks on the list, schedule it today.</div></div>
+      <div class="sub-node" style="border-color:#60A5FA30"><div class="sn-title">🏛️ Board Management</div><div class="sn-detail">No surprises ever. Share bad news with context AND a plan. Build relationships outside meetings.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">💎 Capital Allocation</div><div class="sn-detail">What are we buying? What are we NOT spending on? Success criteria. Kill criteria.</div></div>
     </div>
-    <div class="node-body">
-      <div class="detail" style="margin-bottom:12px">Every conversation runs through these mental models. They're baked into the persona, not optional add-ons.</div>
-      
-      <div class="skill-grid">
-        <div class="sub-node" style="border-color:#EF444430">
-          <div class="sn-title">🔥 Burn Multiple</div>
-          <div class="sn-detail">Net Burn ÷ Net New ARR. &lt;1x amazing. &gt;3x dangerous.</div>
-        </div>
-        <div class="sub-node" style="border-color:#5DF7B530">
-          <div class="sn-title">📊 Five Pillars</div>
-          <div class="sn-detail">Growth + Retention + Margin + Sales Efficiency + Profitability.</div>
-        </div>
-        <div class="sub-node" style="border-color:#60A5FA30">
-          <div class="sn-title">📐 Rule of X</div>
-          <div class="sn-detail">(Growth × 2-3x) + FCF Margin. Weights growth because it compounds.</div>
-        </div>
-        <div class="sub-node" style="border-color:#FBBF2430">
-          <div class="sn-title">🎯 Sales Efficiency</div>
-          <div class="sn-detail">Magic Number, CAC Payback, LTV/CAC.</div>
-        </div>
-        <div class="sub-node" style="border-color:#C084FC30">
-          <div class="sn-title">📉 Tri-Scenario</div>
-          <div class="sn-detail">Low / Medium / High on every forecast. No exceptions.</div>
-        </div>
-        <div class="sub-node" style="border-color:#F4724730">
-          <div class="sn-title">🔬 Unit Economics</div>
-          <div class="sn-detail">Per-customer P&L after fully-loaded costs.</div>
-        </div>
-        <div class="sub-node" style="border-color:#22D3EE30">
-          <div class="sn-title">🤖 AI Economics</div>
-          <div class="sn-detail">Cost per inference, AI margin impact. Variable COGS.</div>
-        </div>
-        <div class="sub-node" style="border-color:#FB923C30">
-          <div class="sn-title">🎭 Investor Personas</div>
-          <div class="sn-detail">5 archetypes. Different pitch for each type.</div>
-        </div>
-        <div class="sub-node" style="border-color:#A3E63530">
-          <div class="sn-title">🗓️ Fundraise Timeline</div>
-          <div class="sn-detail">4-phase roadmap with stage gates.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  </div></div>
   <div class="flow-arrow">↓</div>
 
-  <!-- Step 5 -->
-  <div class="node" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">5️⃣</span>
-      <div><div class="title">The Sparring Protocol</div><div class="subtitle">CJ challenges every metric — curious, not condescending</div></div>
-      <span class="arrow">▶</span>
-    </div>
-    <div class="node-body">
-      <div class="detail" style="margin-bottom:12px">This is what makes it different from a spreadsheet. It <em>pushes back</em>.</div>
-      
-      <div style="background:#1a1a1a;border-left:3px solid #FBBF24;padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:8px;">
-        <div style="font-size:12px;color:#FBBF24;font-weight:600;margin-bottom:4px;">Example Pushbacks:</div>
-        <div class="detail" style="font-style:italic;">
-          "Your burn multiple is 3x. That means you're spending $3 to generate $1 of ARR. That's not a growth story, that's a cash bonfire."<br><br>
-          "You're showing me GMV, but I want to see gross margin. What's the actual unit economics on each transaction?"<br><br>
-          "Rule of 40 looks fine, but Rule of X? You're underweighting growth. Are you starving the business for the sake of FCF?"
-        </div>
-      </div>
-      
-      <div class="detail">
-        <strong>The persona is "CJ"</strong> — conversational, uses dad jokes (badly, on purpose), irreverent about "boring" finance. Self-aware. Never pretentious. But rigorous underneath the banter. The AI doesn't just crunch numbers — it tells you what the numbers <em>mean</em> and what VCs will think when they see them.
-      </div>
-    </div>
-  </div>
-
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">5️⃣</span><div><div class="title">The Sparring Protocol</div><div class="subtitle">Hard truths the CEO needs to hear</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="pushback-box" style="border-color:#EF4444;"><div class="pushback-label" style="color:#EF4444;">Example Pushbacks:</div><div class="detail" style="font-style:italic;">"That's a decision you can delegate. What's the decision only YOU can make?"<br><br>"You're solving for this quarter. What does this look like in three years?"<br><br>"You're avoiding the hard conversation. Who do you need to talk to?"<br><br>"You know the answer. You're looking for permission. You don't need it."</div></div>
+    <div class="detail">The CEO skill is the only one that challenges Jeff on <em>whether he should even be doing the work</em>. If it's not a Type 1 decision, it pushes back: "Delegate this. Your job is to set direction, build the team, and make sure there's money. Everything else is someone else's job."</div>
+  </div></div>
   <div class="flow-arrow">↓</div>
 
-  <!-- Step 6 -->
-  <div class="node open" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">6️⃣</span>
-      <div><div class="title">Dual Output: Text + Data</div><div class="subtitle">Every interaction produces two things</div></div>
-      <span class="arrow">▶</span>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">6️⃣</span><div><div class="title">Dual Output: Text + Data</div><div class="subtitle">CEO Sync document + strategy files</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="output-grid">
+      <div class="output-card" style="border-color:#C084FC30"><div class="output-card-title" style="color:#C084FC;">💬 CEO Sync (for Jeff)</div><div class="detail"><strong>1. State of the Company</strong> — honest wartime/peacetime assessment<br><strong>2. The One Thing</strong> — single most important focus<br><strong>3. Hard Truth</strong> — what Jeff is probably avoiding<br><strong>4. C-Suite Health</strong> — 🟢/🟡/🔴 per function (CMO, CFO, CPO, CTO)<br><strong>5. Decisions Only You Can Make</strong> — pending Type 1 decisions<br><strong>6. This Week</strong> — 2-3 specific CEO actions</div></div>
+      <div class="output-card" style="border-color:#5DF7B530"><div class="output-card-title" style="color:#5DF7B5;">📊 Strategy Files (for machines)</div><div class="detail"><strong>strategy.json</strong> — vision, priorities, mode, big bets, risks<br><strong>hard_conversations.json</strong> — tracked conversations with deadlines<br><strong>decisions/</strong> — major decisions with context<br><strong>sync_history.json</strong> — every CEO sync appended<br><br>These files feed the dashboard and future CEO sessions.</div></div>
     </div>
-    <div class="node-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div style="background:#1a1a1a;border:1px solid #C084FC30;border-radius:8px;padding:12px;">
-          <div style="font-size:12px;font-weight:600;color:#C084FC;margin-bottom:6px;">💬 For Humans</div>
-          <div class="detail">
-            Written in CJ's voice. Four sections:<br><br>
-            <strong>1. VC Reality Check</strong> — honest progress assessment<br>
-            <strong>2. Numbers That Matter</strong> — metrics with framework analysis<br>
-            <strong>3. Highest Leverage Action</strong> — THE one thing to focus on<br>
-            <strong>4. Hard Questions</strong> — what VCs will ask
-          </div>
-        </div>
-        <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;">
-          <div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">📊 For Machines</div>
-          <div class="detail">
-            JSON written to disk:<br><br>
-            <strong>latest_forecast.json</strong> — 3-scenario model (dashboard reads this)<br>
-            <strong>forecasts/forecast_*.json</strong> — historical snapshot<br>
-            <strong>sync_history.json</strong> — conversation data appended<br><br>
-            These files power dashboards and future conversations.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  </div></div>
   <div class="flow-arrow">↓</div>
 
-  <!-- Step 7 -->
-  <div class="node" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">7️⃣</span>
-      <div><div class="title">Delegate to Execution Skills</div><div class="subtitle">CFO strategizes. Child skills execute.</div></div>
-      <span class="arrow">▶</span>
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">7️⃣</span><div><div class="title">Delegate to the C-Suite</div><div class="subtitle">CEO orchestrates. Everyone else executes.</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="detail" style="margin-bottom:12px">The CEO skill rarely does the work itself. It identifies what needs to happen and routes it:</div>
+    <div class="child-grid">
+      <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">/cfo</div><div class="sn-detail">"We need a fundraise plan." → delegates to CFO + /fundraise-prep</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/cmo</div><div class="sn-detail">"GTM strategy needs adjustment." → delegates to CMO</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">/cpo</div><div class="sn-detail">"Product isn't shipping fast enough." → delegates to CPO + CTO</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">/leadership-sync</div><div class="sn-detail">"Get me a cross-functional view." → synthesizes all C-suite perspectives</div></div>
     </div>
-    <div class="node-body">
-      <div class="detail" style="margin-bottom:12px">When deeper work is needed, the CFO skill tells Jeff to invoke a child skill:</div>
-      
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-        <div class="sub-node" style="border-color:#5DF7B530">
-          <div class="sn-title">/finance-forecast</div>
-          <div class="sn-detail">Detailed scenario modeling. Revenue projections. Monthly granularity.</div>
-        </div>
-        <div class="sub-node" style="border-color:#60A5FA30">
-          <div class="sn-title">/cap-table</div>
-          <div class="sn-detail">Equity tracking. Dilution analysis. Option pool modeling.</div>
-        </div>
-        <div class="sub-node" style="border-color:#FBBF2430">
-          <div class="sn-title">/board-deck</div>
-          <div class="sn-detail">Quarterly board presentations. Metrics + narrative + asks.</div>
-        </div>
-        <div class="sub-node" style="border-color:#C084FC30">
-          <div class="sn-title">/fundraise-prep</div>
-          <div class="sn-detail">Data room. VC Q&A. Due diligence checklists.</div>
-        </div>
+  </div></div>
+</div></div>
+
+<!-- ==================== CFO ==================== -->
+<div id="skill-cfo" class="skill-section">
+<div class="intro-box"><div class="callout">
+  <strong>The CFO skill</strong> turns the AI into "CJ" — a conversational, dad-joke-friendly finance leader who's rigorous underneath the banter. When Jeff says <code>/cfo</code>, CJ loads financial frameworks, pulls data from across the company, and pushes back hard on bad assumptions. Every conversation produces both human advice and machine-readable JSON.
+</div></div>
+<div class="container">
+  <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cfo</code></div><div class="subtitle">Jeff types a command in any channel</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cfo "let's talk burn rate"</code>. Gateway loads <code>skills/cfo/SKILL.md</code> — 1,100 lines of finance expertise. The AI becomes CJ with all frameworks, benchmarks, and data paths loaded. Any channel works: Telegram, Discord, Claude Code terminal.</div></div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load Financial State</div><div class="subtitle">Read own data + pull from other skills</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="data-grid">
+      <div>
+        <div class="data-col-label" style="color:#5DF7B5;">📂 CFO's Own Data</div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">assumptions.json</div><div class="sn-detail">Revenue model: SaaS fees, FX take rate, yield on AUM. Scenario parameters. Valuation targets.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">sync_history.json</div><div class="sn-detail">Every past conversation with metrics. "What did we discuss last time?"</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">latest_forecast.json</div><div class="sn-detail">Current 3-scenario financial model. The dashboard reads this file.</div></div>
+        <div class="sub-node"><div class="sn-title">forecasts/forecast_*.json</div><div class="sn-detail">Historical snapshots. How projections evolved over time.</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#333;font-size:24px;">→</div>
+      <div>
+        <div class="data-col-label" style="color:#60A5FA;">🔗 Cross-Skill Reads</div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#F59E0B30"><div class="sn-title">CMO → data/gtm/</div><div class="sn-detail">Pipeline value, win rate, CAC by channel, marketing spend.</div></div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#C084FC30"><div class="sn-title">CPO → data/product/</div><div class="sn-detail">PMF stage, AI cost per user, NPS, retention.</div></div>
+        <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">CTO → data/engineering/</div><div class="sn-detail">Infra spend, headcount, open roles, tech debt.</div></div>
       </div>
     </div>
-  </div>
+    <div class="insight-box"><div class="insight-label">💡 Why Cross-Skill Reads Matter</div><div class="detail">The CFO doesn't work in a vacuum. When Jeff asks "what's our burn multiple?", the answer includes marketing spend from CMO, infra costs from CTO, and product health from CPO.</div></div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
 
-  <div class="section-divider"><span>The Full Data Flow</span></div>
-
-  <div class="node open" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">🗺️</span>
-      <div><div class="title">End-to-End Request Lifecycle</div><div class="subtitle">One picture, everything connected</div></div>
-      <span class="arrow">▶</span>
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">3️⃣</span><div><div class="title">First Run vs. Returning</div><div class="subtitle">Bootstrap if new, compare if returning</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#1a1a1a;border:1px solid #F59E0B30;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#FBBF24;margin-bottom:6px;">🆕 First Run</div><div class="detail">No history found. CJ asks for baseline numbers: cash position, burn, MRR, client count, GTV, AUM, CAC, LTV, NRR, gross margin, AI inference spend. Creates <code>data/cfo/</code> directory.</div></div>
+      <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🔄 Returning</div><div class="detail">Reads last sync, compares metrics, calculates efficiency, recalculates 3-scenario forecast, challenges anything off, writes updated files, appends to history.</div></div>
     </div>
-    <div class="node-body">
-      <pre style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;padding:16px;font-size:11px;color:#999;line-height:1.7;overflow-x:auto;font-family:'SF Mono',Monaco,monospace;">
-<span style="color:#888;">Jeff says:</span> <span style="color:#5DF7B5;">/cfo "what's our burn multiple?"</span>
+  </div></div>
+  <div class="flow-arrow">↓</div>
 
-        <span style="color:#555;">│</span>
-        <span style="color:#555;">▼</span>
-<span style="color:#C084FC;">┌─────────────────────────────────────────┐</span>
-<span style="color:#C084FC;">│</span>  <span style="color:#fff;">Gateway</span>                                  <span style="color:#C084FC;">│</span>
-<span style="color:#C084FC;">│</span>  Matches /cfo → loads SKILL.md           <span style="color:#C084FC;">│</span>
-<span style="color:#C084FC;">│</span>  AI becomes "CJ" (CFO persona)           <span style="color:#C084FC;">│</span>
-<span style="color:#C084FC;">└─────────────────────────────────────────┘</span>
-        <span style="color:#555;">│</span>
-        <span style="color:#555;">▼</span>
-<span style="color:#60A5FA;">┌─────────────────────────────────────────┐</span>
-<span style="color:#60A5FA;">│</span>  <span style="color:#fff;">Read Data</span>                                <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>                                           <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>  data/cfo/assumptions.json    <span style="color:#666;">(own)</span>       <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>  data/cfo/sync_history.json   <span style="color:#666;">(history)</span>   <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>  data/cfo/latest_forecast.json <span style="color:#666;">(current)</span>  <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>  data/gtm/*                   <span style="color:#666;">(from CMO)</span> <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>  data/product/*               <span style="color:#666;">(from CPO)</span> <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">│</span>  data/engineering/*            <span style="color:#666;">(from CTO)</span> <span style="color:#60A5FA;">│</span>
-<span style="color:#60A5FA;">└─────────────────────────────────────────┘</span>
-        <span style="color:#555;">│</span>
-        <span style="color:#555;">▼</span>
-<span style="color:#FBBF24;">┌─────────────────────────────────────────┐</span>
-<span style="color:#FBBF24;">│</span>  <span style="color:#fff;">Process & Challenge</span>                      <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">│</span>                                           <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">│</span>  Apply 9 frameworks                       <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">│</span>  Compare to last sync                     <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">│</span>  Run sparring protocol                    <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">│</span>  Calculate burn multiple, Rule of X, etc.  <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">│</span>  Generate 3-scenario forecast              <span style="color:#FBBF24;">│</span>
-<span style="color:#FBBF24;">└─────────────────────────────────────────┘</span>
-        <span style="color:#555;">│</span>
-   <span style="color:#555;">┌────┴────┐</span>
-   <span style="color:#555;">▼</span>         <span style="color:#555;">▼</span>
-<span style="color:#C084FC;">┌──────────┐</span>  <span style="color:#5DF7B5;">┌──────────────────┐</span>
-<span style="color:#C084FC;">│</span> <span style="color:#fff;">Text</span>     <span style="color:#C084FC;">│</span>  <span style="color:#5DF7B5;">│</span> <span style="color:#fff;">JSON Files</span>       <span style="color:#5DF7B5;">│</span>
-<span style="color:#C084FC;">│</span> to Jeff  <span style="color:#C084FC;">│</span>  <span style="color:#5DF7B5;">│</span> to disk          <span style="color:#5DF7B5;">│</span>
-<span style="color:#C084FC;">│</span> <span style="color:#888;">(voice)</span>  <span style="color:#C084FC;">│</span>  <span style="color:#5DF7B5;">│</span> <span style="color:#888;">(forecast.json)</span>  <span style="color:#5DF7B5;">│</span>
-<span style="color:#C084FC;">└──────────┘</span>  <span style="color:#5DF7B5;">└──────────────────┘</span>
-                    <span style="color:#555;">│</span>
-              <span style="color:#555;">┌─────┼─────┐</span>
-              <span style="color:#555;">▼</span>     <span style="color:#555;">▼</span>     <span style="color:#555;">▼</span>
-          <span style="color:#666;">Dashboard</span>  <span style="color:#666;">Other</span>   <span style="color:#666;">Future</span>
-          <span style="color:#666;">reads it</span>   <span style="color:#666;">skills</span>  <span style="color:#666;">syncs</span>
-</pre>
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">4️⃣</span><div><div class="title">Apply Financial Frameworks</div><div class="subtitle">9 embedded frameworks</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="skill-grid">
+      <div class="sub-node" style="border-color:#EF444430"><div class="sn-title">🔥 Burn Multiple</div><div class="sn-detail">Net Burn ÷ Net New ARR. &lt;1x amazing. &gt;3x dangerous.</div></div>
+      <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">📊 Five Pillars</div><div class="sn-detail">Growth + Retention + Margin + Sales Efficiency + Profitability.</div></div>
+      <div class="sub-node" style="border-color:#60A5FA30"><div class="sn-title">📐 Rule of X</div><div class="sn-detail">(Growth × 2-3x) + FCF Margin.</div></div>
+      <div class="sub-node" style="border-color:#FBBF2430"><div class="sn-title">🎯 Sales Efficiency</div><div class="sn-detail">Magic Number, CAC Payback, LTV/CAC.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">📉 Tri-Scenario</div><div class="sn-detail">Low / Medium / High on every forecast.</div></div>
+      <div class="sub-node" style="border-color:#F4724730"><div class="sn-title">🔬 Unit Economics</div><div class="sn-detail">Per-customer P&L after fully-loaded costs.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">🤖 AI Economics</div><div class="sn-detail">Cost per inference, AI margin impact.</div></div>
+      <div class="sub-node" style="border-color:#FB923C30"><div class="sn-title">🎭 Investor Personas</div><div class="sn-detail">5 archetypes. Different pitch for each.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">🗓️ Fundraise Timeline</div><div class="sn-detail">4-phase roadmap with stage gates.</div></div>
     </div>
-  </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
 
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">5️⃣</span><div><div class="title">The Sparring Protocol</div><div class="subtitle">CJ challenges every metric</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="pushback-box" style="border-color:#FBBF24;"><div class="pushback-label" style="color:#FBBF24;">Example Pushbacks:</div><div class="detail" style="font-style:italic;">"Your burn multiple is 3x. That means you're spending $3 to generate $1 of ARR. That's not a growth story, that's a cash bonfire."<br><br>"You're showing me GMV, but I want to see gross margin. What's the actual unit economics on each transaction?"<br><br>"Rule of 40 looks fine, but Rule of X? You're underweighting growth."</div></div>
+    <div class="detail"><strong>The persona is "CJ"</strong> — conversational, uses dad jokes, irreverent about "boring" finance. Rigorous underneath the banter.</div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">6️⃣</span><div><div class="title">Dual Output: Text + Data</div><div class="subtitle">Every interaction produces two things</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="output-grid">
+      <div class="output-card" style="border-color:#C084FC30"><div class="output-card-title" style="color:#C084FC;">💬 For Humans</div><div class="detail"><strong>1. VC Reality Check</strong> — honest progress assessment<br><strong>2. Numbers That Matter</strong> — metrics with framework analysis<br><strong>3. Highest Leverage Action</strong> — THE one thing<br><strong>4. Hard Questions</strong> — what VCs will ask</div></div>
+      <div class="output-card" style="border-color:#5DF7B530"><div class="output-card-title" style="color:#5DF7B5;">📊 For Machines</div><div class="detail"><strong>latest_forecast.json</strong> — 3-scenario model<br><strong>forecasts/forecast_*.json</strong> — historical snapshot<br><strong>sync_history.json</strong> — conversation data appended<br><br>Files power dashboards and future conversations.</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">7️⃣</span><div><div class="title">Delegate to Execution Skills</div><div class="subtitle">CFO strategizes. Child skills execute.</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="child-grid">
+      <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">/finance-forecast</div><div class="sn-detail">Detailed scenario modeling. Revenue projections. Monthly granularity.</div></div>
+      <div class="sub-node" style="border-color:#60A5FA30"><div class="sn-title">/cap-table</div><div class="sn-detail">Equity tracking. Dilution analysis. Option pool modeling.</div></div>
+      <div class="sub-node" style="border-color:#FBBF2430"><div class="sn-title">/board-deck</div><div class="sn-detail">Quarterly board presentations. Metrics + narrative + asks.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">/fundraise-prep</div><div class="sn-detail">Data room. VC Q&A. Due diligence checklists.</div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- ==================== CMO ==================== -->
+<div id="skill-cmo" class="skill-section">
+<div class="intro-box"><div class="callout">
+  <strong>The CMO skill</strong> is a composite GTM leader that blends the sharpest modern go-to-market thinking. Signal-obsessed, AI-native, and allergic to bloat. When Jeff says <code>/cmo</code>, the AI becomes a strategic marketing partner who believes most 2023 playbooks are broken and that a founder with AI agents can outperform a 10-person GTM team.
+</div></div>
+<div class="container">
+  <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cmo</code></div><div class="subtitle">Jeff asks a GTM question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cmo "our pipeline is thin, what do we do?"</code>. Gateway loads 630 lines of GTM strategy. The AI becomes a composite of the best modern GTM thinkers — signal-based selling, AI-native ops, positioning expertise, and bottom-up growth.</div></div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load GTM State</div><div class="subtitle">Marketing data + financial constraints + product roadmap</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="data-grid">
+      <div>
+        <div class="data-col-label" style="color:#F59E0B;">📂 CMO's Own Data</div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">project_context.json</div><div class="sn-detail">Product, ICP segments, GTM model, stage, value props.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">positioning.json</div><div class="sn-detail">Dunford 5-component positioning framework.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">gtm_scorecard.json</div><div class="sn-detail">Pipeline metrics, content performance, customer health.</div></div>
+        <div class="sub-node"><div class="sn-title">sync_history.json</div><div class="sn-detail">Every past CMO conversation and strategic assessment.</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#333;font-size:24px;">→</div>
+      <div>
+        <div class="data-col-label" style="color:#60A5FA;">🔗 Cross-Skill Reads</div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#5DF7B530"><div class="sn-title">CFO → data/cfo/</div><div class="sn-detail">Budget constraints, runway, revenue targets. GTM must align with financial reality.</div></div>
+        <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">CPO → data/product/</div><div class="sn-detail">Product roadmap, upcoming launches. Content and positioning must match what's shipping.</div></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">3️⃣</span><div><div class="title">First Run vs. Returning</div><div class="subtitle">Discovery flow vs. strategic sync</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#1a1a1a;border:1px solid #F59E0B30;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#FBBF24;margin-bottom:6px;">🆕 First Run</div><div class="detail">Runs full discovery: What's the product? Who's the buyer? How are you getting customers today? What channels have you tried? What tools are in the stack? What signals are you tracking?</div></div>
+      <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🔄 Returning</div><div class="detail">Reads last sync, assesses GTM maturity stage (Explorer/Builder/Scaler), checks positioning clarity, identifies the one highest-leverage GTM action.</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">4️⃣</span><div><div class="title">Apply GTM Frameworks</div><div class="subtitle">10 frameworks for AI-era go-to-market</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="skill-grid">
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">📈 GTM Maturity</div><div class="sn-detail">Explorer → Builder → Scaler. Stage-appropriate advice only.</div></div>
+      <div class="sub-node" style="border-color:#EF444430"><div class="sn-title">🎯 Positioning (Dunford)</div><div class="sn-detail">5 components: alternatives, capabilities, value, customers, category.</div></div>
+      <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">📦 Product Type</div><div class="sn-detail">Pick ONE: Vertical, New Way, Buy vs Build, or 10x Better.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">⚠️ Risk-Based Messaging</div><div class="sn-detail">80% buy to avoid pain. Lead with risk, not aspiration.</div></div>
+      <div class="sub-node" style="border-color:#60A5FA30"><div class="sn-title">⬆️ Bottom-Up GTM</div><div class="sn-detail">Build user love first. Bottoms-up ocean feeds the top-down river.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">📡 Signal-Based Selling</div><div class="sn-detail">Website visits, intent data, engagement signals over spray-and-pray.</div></div>
+      <div class="sub-node" style="border-color:#FB923C30"><div class="sn-title">🤖 AI Growth Playbook</div><div class="sn-detail">60-70% of traditional tactics are dead. Re-find PMF every 3 months.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">🛠️ AI GTM Stack</div><div class="sn-detail">Replace 10 SDRs with 1 person + AI agents.</div></div>
+      <div class="sub-node" style="border-color:#FBBF2430"><div class="sn-title">💰 PLG Pricing</div><div class="sn-detail">MOAT + DEEP frameworks. 12% freemium beats 8% free trial.</div></div>
+      <div class="sub-node" style="border-color:#EF444430"><div class="sn-title">📊 Channel Priority 2026</div><div class="sn-detail">P0: LinkedIn organic + signals + referrals. P2: paid ads (last).</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">5️⃣</span><div><div class="title">The Sparring Protocol</div><div class="subtitle">Anti-bloat, signal-obsessed pushback</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="pushback-box" style="border-color:#F59E0B;"><div class="pushback-label" style="color:#F59E0B;">Example Pushbacks:</div><div class="detail" style="font-style:italic;">"That's a 2023 playbook. Here's what's actually working now..."<br><br>"Companies scale to $5M ARR on LinkedIn and signals alone. Have you tried that before hiring SDRs?"<br><br>"You're optimizing when you should be innovating. Ship a new feature instead of polishing old funnels."<br><br>"What are you positioning against? If you can't name the alternative, your positioning is weak."</div></div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">6️⃣</span><div><div class="title">Dual Output: Text + Data</div><div class="subtitle">Strategic assessment + GTM scorecard</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="output-grid">
+      <div class="output-card" style="border-color:#F59E0B30"><div class="output-card-title" style="color:#F59E0B;">💬 Strategic Assessment</div><div class="detail"><strong>1. Situation Read</strong> — where the business is in GTM journey<br><strong>2. Positioning Check</strong> — is positioning clear? If not, priority #1<br><strong>3. Top GTM Priority</strong> — THE one thing<br><strong>4. Challenge</strong> — push back on an assumption<br><strong>5. Next Moves</strong> — 2-3 executable steps</div></div>
+      <div class="output-card" style="border-color:#5DF7B530"><div class="output-card-title" style="color:#5DF7B5;">📊 GTM Scorecard JSON</div><div class="detail"><strong>gtm_scorecard.json</strong> — pipeline, content, customer, efficiency metrics<br><strong>scorecards/scorecard_*.json</strong> — historical snapshots<br><strong>positioning.json</strong> — Dunford 5-component framework<br><strong>sync_history.json</strong> — every CMO sync appended</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">7️⃣</span><div><div class="title">Delegate to GTM Pipeline</div><div class="subtitle">11 execution skills + 6 orchestrated workflows</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="detail" style="margin-bottom:12px">The CMO has the largest child skill network — 11 execution skills covering the full GTM pipeline:</div>
+    <div class="skill-grid">
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-icp</div><div class="sn-detail">Define ICP segments and messaging</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-prospecting</div><div class="sn-detail">Build enriched prospect lists</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-content</div><div class="sn-detail">Generate segment-targeted content</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-outbound</div><div class="sn-detail">Execute outreach sequences</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-lead-capture</div><div class="sn-detail">Score and qualify leads</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-deal-intel</div><div class="sn-detail">Analyze deals, extract competitive intel</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-onboarding</div><div class="sn-detail">Post-close customer activation</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-lifecycle</div><div class="sn-detail">Expansion and retention playbooks</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-analytics</div><div class="sn-detail">Funnel diagnostics and attribution</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-monetization</div><div class="sn-detail">Packaging and pricing strategy</div></div>
+      <div class="sub-node" style="border-color:#F59E0B30"><div class="sn-title">/gtm-infra</div><div class="sn-detail">GTM tech stack and automation</div></div>
+      <div class="sub-node" style="border-color:#FB923C30"><div class="sn-title">/advisor-outreach</div><div class="sn-detail">Network-based intro harvesting</div></div>
+    </div>
+    <div class="insight-box"><div class="insight-label">🔄 Orchestrated Workflows</div><div class="detail">The CMO can run coordinated multi-skill workflows: <strong>Strategy Mode</strong> (ICP → Monetization), <strong>Acquisition Mode</strong> (Prospecting → Content → Outbound → Lead Capture), <strong>Retention Mode</strong> (Onboarding → Lifecycle), and <strong>Full Funnel Review</strong> (Analytics across all stages).</div></div>
+  </div></div>
+</div></div>
+
+<!-- ==================== CPO ==================== -->
+<div id="skill-cpo" class="skill-section">
+<div class="intro-box"><div class="callout">
+  <strong>The CPO skill</strong> is a strategic product leader obsessed with outcomes over outputs. When Jeff says <code>/cpo</code>, the AI becomes customer-obsessed, anti-feature-factory, and model-aware. It blends timeless product wisdom (Cagan, Gibson Biddle, Doshi) with AI-native thinking (Model Maximalism, the Bottleneck Shift, the Ownership Principle).
+</div></div>
+<div class="container">
+  <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cpo</code></div><div class="subtitle">Jeff asks a product question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cpo "should we build the sweep feature or the FX dashboard first?"</code>. Gateway loads 779 lines of product strategy. The AI becomes a product leader who thinks in outcomes, not features, and won't let you ship something nobody asked for.</div></div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load Product State</div><div class="subtitle">Product data + market context + financial constraints</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="data-grid">
+      <div>
+        <div class="data-col-label" style="color:#C084FC;">📂 CPO's Own Data</div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">strategy.json</div><div class="sn-detail">Product vision, PMF status, unfair advantage, biggest risks.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">roadmap.json</div><div class="sn-detail">Current priorities, upcoming features, RICE scores.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">competitive_analysis.json</div><div class="sn-detail">Direct competitors, indirect alternatives, positioning map.</div></div>
+        <div class="sub-node"><div class="sn-title">pmf_tracker.json</div><div class="sn-detail">Sean Ellis test results, retention curves, NPS trends.</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#333;font-size:24px;">→</div>
+      <div>
+        <div class="data-col-label" style="color:#60A5FA;">🔗 Cross-Skill Reads</div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#F59E0B30"><div class="sn-title">CMO → data/gtm/</div><div class="sn-detail">ICP profiles, market positioning. What customers are saying and buying.</div></div>
+        <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">CFO → data/cfo/</div><div class="sn-detail">Business model constraints, revenue targets, unit economics.</div></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">3️⃣</span><div><div class="title">First Run vs. Returning</div><div class="subtitle">Product discovery vs. strategy sync</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#1a1a1a;border:1px solid #C084FC30;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#C084FC;margin-bottom:6px;">🆕 First Run</div><div class="detail">Full product discovery: What does it do? Who's it for? What pain does it solve? PMF status? What's working, what's not? AI core or feature? What becomes possible if models get 10x better?</div></div>
+      <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🔄 Returning</div><div class="detail">Assesses PMF stage, checks DHM scores on current priorities, evaluates whether work is Leverage/Neutral/Overhead, challenges roadmap decisions.</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">4️⃣</span><div><div class="title">Apply Product Frameworks</div><div class="subtitle">13 frameworks — traditional + AI-native</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="detail" style="margin-bottom:8px"><strong>Traditional Product Wisdom:</strong></div>
+    <div class="skill-grid" style="margin-bottom:12px">
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">📊 PMF Assessment</div><div class="sn-detail">Pre-PMF → Emerging → Strong → Expanding. Don't scale what isn't working.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">💎 DHM Framework</div><div class="sn-detail">Delight × Hard-to-copy × Margin-enhancing. Score every initiative.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">⚡ LNO Framework</div><div class="sn-detail">Leverage (10%), Neutral (60%), Overhead (30%). Protect Leverage time.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">📐 RICE + Strategy</div><div class="sn-detail">Reach × Impact × Confidence / Effort. Plus vision alignment.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">🔍 Discovery (Cagan)</div><div class="sn-detail">4 risks: Value, Usability, Feasibility, Viability. Test riskiest first.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">🗺️ Competitive Positioning</div><div class="sn-detail">Direct, indirect, status quo. Why do deals stall?</div></div>
+    </div>
+    <div class="detail" style="margin-bottom:8px"><strong>AI-Native Product Thinking:</strong></div>
+    <div class="skill-grid">
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">🚀 Model Maximalism</div><div class="sn-detail">Build for emerging capabilities, not current limits. Today's models are the worst you'll ever use.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">📏 Evals as Strategy</div><div class="sn-detail">Product can only improve on what you measure. Build evals before features.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">🔄 Bottleneck Shift</div><div class="sn-detail">AI writes 90%+ of code. Decision-making is the new constraint.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">🥚 Ownership Principle</div><div class="sn-detail">Don't fully automate. Let users "add the egg." Small effort creates ownership.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">📉 Value > Engagement</div><div class="sn-detail">2-message success > 200-message struggle. Measure outcomes, not activity.</div></div>
+      <div class="sub-node" style="border-color:#A3E63530"><div class="sn-title">🏗️ Full Stack Builder</div><div class="sn-detail">One person, idea to launch. Collapse silos. AI as force multiplier.</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">5️⃣</span><div><div class="title">The Sparring Protocol</div><div class="subtitle">Outcomes over outputs, teeth in opinions</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="pushback-box" style="border-color:#C084FC;"><div class="pushback-label" style="color:#C084FC;">Example Pushbacks:</div><div class="detail" style="font-style:italic;">"That's a feature, not a strategy. What problem are we solving and for whom?"<br><br>"Is a chatbot actually the right interface, or are we defaulting to it because it's trendy?"<br><br>"That opinion has no teeth. What are you willing to sacrifice for this? What's the real tradeoff?"<br><br>"You say this is a priority, but where are the resources? Resource allocation reveals truth."</div></div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">6️⃣</span><div><div class="title">Dual Output: Text + Data</div><div class="subtitle">Product assessment + strategy files</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="output-grid">
+      <div class="output-card" style="border-color:#C084FC30"><div class="output-card-title" style="color:#C084FC;">💬 Product Assessment</div><div class="detail"><strong>1. PMF Status</strong> — which stage, evidence<br><strong>2. Product Health</strong> — DHM scores on priorities<br><strong>3. Top Product Priority</strong> — the one Leverage item<br><strong>4. Challenge</strong> — what assumptions need testing<br><strong>5. Next Moves</strong> — executable steps</div></div>
+      <div class="output-card" style="border-color:#5DF7B530"><div class="output-card-title" style="color:#5DF7B5;">📊 Product Data JSON</div><div class="detail"><strong>strategy.json</strong> — vision, PMF stage, unfair advantage<br><strong>roadmap.json</strong> — prioritized features with RICE<br><strong>competitive_analysis.json</strong> — landscape map<br><strong>pmf_tracker.json</strong> — retention, NPS, Sean Ellis scores</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">7️⃣</span><div><div class="title">Delegate to Product Skills</div><div class="subtitle">Discovery before delivery</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="child-grid">
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">/product-discovery</div><div class="sn-detail">Validate assumptions through research, competitive analysis, build vs buy, feasibility.</div></div>
+      <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">/pm</div><div class="sn-detail">PRD writing and feature specification with lean/MVP mindset for CTO-ready handoff.</div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- ==================== CTO ==================== -->
+<div id="skill-cto" class="skill-section">
+<div class="intro-box"><div class="callout">
+  <strong>The CTO skill</strong> is a pragmatic technical leader who believes in radical simplicity. When Jeff says <code>/cto</code>, the AI becomes an engineering strategist who'd rather ship a monolith than debate microservices, who thinks boring technology wins, and who'll call out resume-driven decisions on sight.
+</div></div>
+<div class="container">
+  <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cto</code></div><div class="subtitle">Jeff asks a technical question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cto "should we move to Kubernetes?"</code>. Gateway loads 476 lines of technical leadership. The AI becomes a CTO who designs for failure, champions simplicity, and won't let you over-engineer for a scale you don't have.</div></div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load Engineering State</div><div class="subtitle">Tech stack + budget + product requirements</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="data-grid">
+      <div>
+        <div class="data-col-label" style="color:#22D3EE;">📂 CTO's Own Data</div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">tech_stack.json</div><div class="sn-detail">Frontend, backend, database, infra, CI/CD, observability. Maturity stage.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">engineering_scorecard.json</div><div class="sn-detail">DORA metrics: deploy frequency, lead time, change failure rate, MTTR.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">tech_debt.json</div><div class="sn-detail">Classified by quadrant: reckless/prudent × deliberate/inadvertent.</div></div>
+        <div class="sub-node"><div class="sn-title">infra_costs.json</div><div class="sn-detail">Cloud spend, cost per customer, compute efficiency, top cost drivers.</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#333;font-size:24px;">→</div>
+      <div>
+        <div class="data-col-label" style="color:#60A5FA;">🔗 Cross-Skill Reads</div>
+        <div class="sub-node" style="margin-bottom:6px;border-color:#5DF7B530"><div class="sn-title">CFO → data/cfo/</div><div class="sn-detail">Budget constraints, runway. "Can we afford this infra investment?"</div></div>
+        <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">CPO → data/product/</div><div class="sn-detail">Roadmap, upcoming features. "What do we need to build next?"</div></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">3️⃣</span><div><div class="title">First Run vs. Returning</div><div class="subtitle">Technical landscape mapping vs. health check</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#1a1a1a;border:1px solid #22D3EE30;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#22D3EE;margin-bottom:6px;">🆕 First Run</div><div class="detail">Maps the full technical landscape: stack, team, deployment frequency, on-call rotation, pain points, infra budget, compliance requirements. Creates <code>data/engineering/</code> directory.</div></div>
+      <div style="background:#1a1a1a;border:1px solid #5DF7B530;border-radius:8px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#5DF7B5;margin-bottom:6px;">🔄 Returning</div><div class="detail">Assesses maturity stage (Survival/Foundation/Scale/Optimize), reviews DORA metrics, checks tech debt trends, evaluates infra costs, identifies the one highest-leverage technical action.</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">4️⃣</span><div><div class="title">Apply Technical Frameworks</div><div class="subtitle">6 frameworks for pragmatic engineering</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="skill-grid">
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">🏗️ Technical Maturity</div><div class="sn-detail">Survival → Foundation → Scale → Optimize. Stage-appropriate advice only.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">📋 ADR Framework</div><div class="sn-detail">Architecture Decision Records. Context, options, decision, consequences, review date.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">🧱 Tech Debt Quadrant</div><div class="sn-detail">Reckless/Prudent × Deliberate/Inadvertent. Classify to prioritize.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">🛒 Build vs Buy</div><div class="sn-detail">Core differentiator? Build. Everything else? Buy until proven otherwise.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">💵 Infra Cost Model</div><div class="sn-detail">Infra as % of revenue, cost per customer, compute efficiency.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">🔒 Security Baseline</div><div class="sn-detail">Minimum viable security per stage. From HTTPS to SOC 2 Type II.</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">5️⃣</span><div><div class="title">The Sparring Protocol</div><div class="subtitle">Radical simplicity, anti-complexity</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="pushback-box" style="border-color:#22D3EE;"><div class="pushback-label" style="color:#22D3EE;">Example Pushbacks:</div><div class="detail" style="font-style:italic;">"That's over-engineered for your stage. What's the simplest thing that could work?"<br><br>"Before we add another service, show me the load that justifies it."<br><br>"This introduces operational complexity. Who's going to be on-call for it at 3am?"<br><br>"That's a resume-driven decision, not a business-driven one."</div></div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">6️⃣</span><div><div class="title">Dual Output: Text + Data</div><div class="subtitle">Technical assessment + engineering scorecard</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="output-grid">
+      <div class="output-card" style="border-color:#22D3EE30"><div class="output-card-title" style="color:#22D3EE;">💬 Technical Assessment</div><div class="detail"><strong>1. Situation Read</strong> — engineering health, maturity stage<br><strong>2. Top Technical Priority</strong> — the one thing<br><strong>3. Trade-off Acknowledgment</strong> — what you're NOT doing and why<br><strong>4. Next Moves</strong> — 2-3 executable technical actions</div></div>
+      <div class="output-card" style="border-color:#5DF7B530"><div class="output-card-title" style="color:#5DF7B5;">📊 Engineering Scorecard JSON</div><div class="detail"><strong>engineering_scorecard.json</strong> — DORA metrics, debt, infra, security, team<br><strong>tech_stack.json</strong> — architecture state<br><strong>tech_debt.json</strong> — classified and prioritized<br><strong>adrs/</strong> — decision records<br><strong>incidents/</strong> — post-mortems</div></div>
+    </div>
+  </div></div>
+  <div class="flow-arrow">↓</div>
+
+  <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">7️⃣</span><div><div class="title">Delegate to Engineering Skills</div><div class="subtitle">Specific technical execution</div></div><span class="arrow">▶</span></div><div class="node-body">
+    <div class="child-grid">
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">/tech-debt</div><div class="sn-detail">Track, prioritize, and plan debt paydown with impact-based classification.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">/architecture-decision</div><div class="sn-detail">Generate and review Architecture Decision Records.</div></div>
+      <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">/infra-cost</div><div class="sn-detail">Analyze and optimize cloud infrastructure costs.</div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<!-- ==================== SHARED BOTTOM ==================== -->
+<div class="container">
   <div class="section-divider"><span>The Skill Ecosystem</span></div>
 
   <div class="node" onclick="toggleNode(this)">
-    <div class="node-header">
-      <span class="icon">🌐</span>
-      <div><div class="title">61 Skills, Same Pattern</div><div class="subtitle">CFO is one example. Here's the full map.</div></div>
-      <span class="arrow">▶</span>
-    </div>
+    <div class="node-header"><span class="icon">🌐</span><div><div class="title">61 Skills, Same Pattern</div><div class="subtitle">The C-suite is just the beginning.</div></div><span class="arrow">▶</span></div>
     <div class="node-body">
       <div class="detail" style="margin-bottom:12px">Every skill follows the same lifecycle: invoke → load data → apply frameworks → challenge → dual output. The domain changes, the architecture doesn't.</div>
-      
       <div class="skill-grid">
-        <div class="sub-node" style="border-color:#EF444430">
-          <div class="sn-title">C-Suite (6)</div>
-          <div class="sn-detail">CEO · CFO · CMO · CPO · CTO · CISO — each with persona, frameworks, cross-reads</div>
-        </div>
-        <div class="sub-node" style="border-color:#5DF7B530">
-          <div class="sn-title">GTM Pipeline (11)</div>
-          <div class="sn-detail">ICP → Prospecting → Content → Outbound → Deals → Onboarding → Lifecycle → Analytics</div>
-        </div>
-        <div class="sub-node" style="border-color:#60A5FA30">
-          <div class="sn-title">Engineering (6)</div>
-          <div class="sn-detail">Explore → Plan → Execute → Review → Document → Tech Debt</div>
-        </div>
-        <div class="sub-node" style="border-color:#FBBF2430">
-          <div class="sn-title">Finance (4)</div>
-          <div class="sn-detail">Forecast · Cap Table · Board Deck · Fundraise Prep</div>
-        </div>
-        <div class="sub-node" style="border-color:#C084FC30">
-          <div class="sn-title">Security (4)</div>
-          <div class="sn-detail">Compliance · Privacy · Security Ops · Vendor Risk</div>
-        </div>
-        <div class="sub-node" style="border-color:#22D3EE30">
-          <div class="sn-title">Personal (6)</div>
-          <div class="sn-detail">Coach · Journal · Personal CFO · Travel · Home · Life Reviews</div>
-        </div>
+        <div class="sub-node" style="border-color:#EF444430"><div class="sn-title">C-Suite (6)</div><div class="sn-detail">CEO · CFO · CMO · CPO · CTO · CISO</div></div>
+        <div class="sub-node" style="border-color:#5DF7B530"><div class="sn-title">GTM Pipeline (11)</div><div class="sn-detail">ICP → Prospecting → Content → Outbound → Deals → Onboarding → Lifecycle</div></div>
+        <div class="sub-node" style="border-color:#60A5FA30"><div class="sn-title">Engineering (6)</div><div class="sn-detail">Explore → Plan → Execute → Review → Document → Tech Debt</div></div>
+        <div class="sub-node" style="border-color:#FBBF2430"><div class="sn-title">Finance (4)</div><div class="sn-detail">Forecast · Cap Table · Board Deck · Fundraise Prep</div></div>
+        <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">Security (4)</div><div class="sn-detail">Compliance · Privacy · Security Ops · Vendor Risk</div></div>
+        <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">Personal (6)</div><div class="sn-detail">Coach · Journal · Personal CFO · Travel · Home · Life Reviews</div></div>
       </div>
-
-      <div style="background:#0f1a14;border:1px solid #1a3a2a;border-radius:8px;padding:10px 14px;margin-top:12px;">
-        <div style="font-size:10px;color:#5DF7B5;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">🔑 The Key Insight</div>
-        <div class="detail">Skills read from each other through shared JSON files on disk. The CFO reads CMO pipeline data. The CMO reads CFO budget constraints. The CTO reads CFO runway. No APIs, no message queues — just files. Simple, inspectable, debuggable. The same pattern that makes a solo founder operate like a company with a full C-suite.</div>
-      </div>
+      <div class="insight-box"><div class="insight-label">🔑 The Key Insight</div><div class="detail">Skills read from each other through shared JSON files on disk. No APIs, no message queues. Just files. Simple, inspectable, debuggable. The same pattern that makes a solo founder operate like a company with a full C-suite.</div></div>
     </div>
   </div>
 
-  <!-- Summary -->
   <div style="background:linear-gradient(135deg, #6B4DB015, #5DF7B510);border:1px solid #6B4DB030;border-radius:12px;padding:20px;margin-top:24px;">
     <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;">TL;DR</div>
     <div style="font-size:13px;color:#bbb;line-height:1.7;">
-      <strong style="color:#5DF7B5;">1.</strong> Invoke a skill (<code>/cfo</code>, <code>/cmo</code>, etc.)<br>
+      <strong style="color:#5DF7B5;">1.</strong> Invoke a skill (<code>/ceo</code>, <code>/cfo</code>, <code>/cmo</code>, <code>/cpo</code>, <code>/cto</code>)<br>
       <strong style="color:#5DF7B5;">2.</strong> A markdown playbook loads, giving the AI domain expertise + persona<br>
       <strong style="color:#5DF7B5;">3.</strong> The skill reads JSON data from disk (its own + other skills')<br>
       <strong style="color:#5DF7B5;">4.</strong> The AI applies embedded frameworks and pushes back on bad assumptions<br>
@@ -436,7 +544,6 @@
       <strong style="color:#fff;">No database. No API. Just markdown playbooks + JSON files + a really good AI.</strong>
     </div>
   </div>
-
 </div>
 
 <div style="text-align:center;padding:40px 20px 60px;color:#555;font-size:12px;">
@@ -444,8 +551,14 @@
 </div>
 
 <script>
-function toggleNode(el) {
-  el.classList.toggle('open');
+function toggleNode(el) { el.classList.toggle('open'); }
+
+function showSkill(id) {
+  document.querySelectorAll('.skill-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('skill-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 </script>
 </body>
