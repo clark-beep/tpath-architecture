@@ -78,7 +78,7 @@ data/
 
 ## Why Open Source?
 
-The skill system is a framework, not a product. The value is in the domain expertise you encode and the data you feed it. We built this for [TreasuryPath](https://treasurypath.com) (fintech platform for CFOs) and use it every day. We're sharing the architecture because:
+The skill system is a framework, not a product. The value is in the domain expertise you encode and the data you feed it. We're sharing the architecture because:
 
 1. The pattern is more useful than any single implementation
 2. AI agent frameworks shouldn't be proprietary
@@ -100,9 +100,7 @@ To build your own skill system:
 3. Configure your AI gateway to load the relevant SKILL.md based on user commands
 4. Skills read/write JSON. That's the whole integration layer.
 
-## Built By
-
-[TreasuryPath](https://treasurypath.com) — AI-powered treasury management for finance teams.
+## Built With
 
 Built by a solo CEO with 61 skills covering C-suite strategy, GTM pipeline, engineering, finance, security, and personal productivity. This is what "one person operating as a company" actually looks like.
 
