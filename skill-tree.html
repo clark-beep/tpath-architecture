@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TreasuryPath Skill Tree — Product Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; }
+
+  .top-bar { background: #0f0f1e; border-bottom: 1px solid #2a2a4a; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .top-bar h1 { font-size: 18px; font-weight: 700; color: #fff; }
+  .top-bar h1 span { color: #5DF7B5; }
+  .top-bar .meta { font-size: 11px; color: #666; }
+  .top-bar .badge { background: #5DF7B520; color: #5DF7B5; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; margin-left: 8px; }
+
+  .board { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+  /* Section headers */
+  .section { margin-bottom: 32px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid; }
+  .section-icon { font-size: 24px; }
+  .section-title { font-size: 16px; font-weight: 700; color: #fff; }
+  .section-count { font-size: 11px; color: #888; background: #ffffff10; padding: 2px 8px; border-radius: 8px; }
+
+  /* Skill cards (sticky note style) */
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .skill-card { background: #1e1e38; border: 1px solid #2a2a4a; border-radius: 12px; padding: 16px; transition: all 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+  .skill-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .skill-card:hover { transform: translateY(-2px); border-color: #444; box-shadow: 0 8px 24px #00000040; }
+  .skill-card.expanded { grid-column: 1 / -1; }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+  .card-name { font-size: 14px; font-weight: 700; color: #fff; }
+  .card-status { font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-extract { background: #F59E0B20; color: #F59E0B; }
+  .status-new { background: #EF444420; color: #EF4444; }
+  .status-connect { background: #8B5CF620; color: #8B5CF6; }
+  .status-enhance { background: #22D3EE20; color: #22D3EE; }
+  .status-redesign { background: #EC489920; color: #EC4899; }
+
+  .card-tagline { font-size: 11px; color: #888; margin-bottom: 10px; font-style: italic; }
+  .card-persona { font-size: 11px; color: #aaa; margin-bottom: 8px; line-height: 1.5; }
+  .card-persona strong { color: #ddd; }
+
+  .card-detail { display: none; }
+  .skill-card.expanded .card-detail { display: block; }
+
+  .detail-section { margin-top: 12px; }
+  .detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .detail-list { font-size: 11px; color: #999; line-height: 1.6; }
+  .detail-list li { margin-bottom: 2px; }
+
+  .framework-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .fw-tag { font-size: 10px; padding: 2px 8px; border-radius: 6px; background: #ffffff08; border: 1px solid #ffffff15; color: #bbb; }
+
+  .data-reads { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .data-col { background: #15152a; border-radius: 8px; padding: 8px; }
+  .data-col-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .data-item { font-size: 10px; color: #888; font-family: 'SF Mono', monospace; margin-bottom: 2px; }
+
+  .pushback-quote { background: #15152a; border-left: 3px solid; padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 6px; font-size: 11px; color: #aaa; font-style: italic; line-height: 1.5; }
+
+  .child-skills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .child-tag { font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+
+  .output-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .output-box { background: #15152a; border-radius: 8px; padding: 8px; }
+  .output-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .output-text { font-size: 10px; color: #888; line-height: 1.5; }
+
+  /* Maps to existing */
+  .maps-to { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .map-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: #5DF7B510; color: #5DF7B5; font-family: 'SF Mono', monospace; }
+
+  /* Orchestrator section */
+  .orchestrator { background: linear-gradient(135deg, #1e1e38, #2a1e3a); border: 1px solid #6B4DB040; border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+  .orch-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .orch-subtitle { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .orch-flow { background: #15152a; border-radius: 12px; padding: 16px; font-family: 'SF Mono', monospace; font-size: 11px; color: #999; line-height: 1.8; margin-bottom: 16px; }
+  .orch-flow .step { color: #5DF7B5; font-weight: 600; }
+  .orch-flow .skill-ref { color: #C084FC; }
+
+  /* Migration timeline */
+  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .phase { background: #15152a; border-radius: 12px; padding: 14px; border-top: 3px solid; }
+  .phase-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .phase-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .phase-time { font-size: 10px; color: #666; margin-bottom: 8px; }
+  .phase-desc { font-size: 11px; color: #999; line-height: 1.5; }
+
+  /* Bottom summary */
+  .summary-bar { background: linear-gradient(135deg, #5DF7B510, #6B4DB010); border: 1px solid #5DF7B520; border-radius: 12px; padding: 20px; margin-top: 24px; text-align: center; }
+  .summary-stat { display: inline-block; margin: 0 24px; }
+  .stat-num { font-size: 28px; font-weight: 800; color: #5DF7B5; }
+  .stat-label { font-size: 11px; color: #888; }
+
+  .expand-hint { font-size: 10px; color: #555; text-align: center; margin-top: 4px; }
+
+  /* Color themes per domain */
+  .treasury .section-header { border-color: #5DF7B5; }
+  .treasury .skill-card::before { background: #5DF7B5; }
+  .treasury .detail-label { color: #5DF7B5; }
+  .treasury .pushback-quote { border-color: #5DF7B5; }
+  .treasury .child-tag { background: #5DF7B510; color: #5DF7B5; }
+
+  .risk .section-header { border-color: #EF4444; }
+  .risk .skill-card::before { background: #EF4444; }
+  .risk .detail-label { color: #EF4444; }
+  .risk .pushback-quote { border-color: #EF4444; }
+  .risk .child-tag { background: #EF444410; color: #EF4444; }
+
+  .fpa .section-header { border-color: #F59E0B; }
+  .fpa .skill-card::before { background: #F59E0B; }
+  .fpa .detail-label { color: #F59E0B; }
+  .fpa .pushback-quote { border-color: #F59E0B; }
+  .fpa .child-tag { background: #F59E0B10; color: #F59E0B; }
+
+  .data-domain .section-header { border-color: #22D3EE; }
+  .data-domain .skill-card::before { background: #22D3EE; }
+  .data-domain .detail-label { color: #22D3EE; }
+
+  .optimization .section-header { border-color: #8B5CF6; }
+  .optimization .skill-card::before { background: #8B5CF6; }
+  .optimization .detail-label { color: #8B5CF6; }
+
+  .meta-domain .section-header { border-color: #EC4899; }
+  .meta-domain .skill-card::before { background: #EC4899; }
+  .meta-domain .detail-label { color: #EC4899; }
+  .meta-domain .pushback-quote { border-color: #EC4899; }
+
+  @media (max-width: 768px) {
+    .skill-grid { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: 1fr 1fr; }
+    .data-reads { grid-template-columns: 1fr; }
+    .output-row { grid-template-columns: 1fr; }
+    .summary-stat { display: block; margin: 8px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div style="display:flex;align-items:center;">
+    <h1>Treasury<span>Path</span> Skill Tree</h1>
+    <span class="badge">ARCHITECTURE PROPOSAL</span>
+  </div>
+  <div class="meta">Feb 25, 2026 · For Adam & Engineering · Click any skill to expand</div>
+</div>
+
+<div class="board">
+
+<!-- Orchestrator -->
+<div class="orchestrator">
+  <div class="orch-title">🧠 CFO Agent — The Orchestrator</div>
+  <div class="orch-subtitle">Routes intent, composes multi-skill responses, triggers proactive alerts. The only skill that reads from everything.</div>
+
+  <div class="orch-flow">
+    <div><span class="step">User:</span> "Why is cash down $400K from last week?"</div>
+    <div style="margin-top:8px"><span class="step">Step 1:</span> Intent → <span class="skill-ref">cash_position_change</span></div>
+    <div><span class="step">Step 2:</span> Activate → <span class="skill-ref">Cash Analyst</span> (position delta) + <span class="skill-ref">Transaction Classifier</span> (large txns) + <span class="skill-ref">Variance Analyst</span> (forecast vs actual)</div>
+    <div><span class="step">Step 3:</span> Synthesize → "Three things: $180K Acme wire settled early, $150K payroll hit ahead of schedule, $70K FX conversion looks like a duplicate — flagging for review."</div>
+    <div><span class="step">Step 4:</span> Proactive → <span class="skill-ref">Risk Analyst</span> triggered (duplicate FX) → <span class="skill-ref">Insight Generator</span> writes alert</div>
+  </div>
+
+  <div style="font-size:12px;color:#999;line-height:1.6;">
+    <strong style="color:#fff;">Key principle:</strong> The router doesn't need to be smart. The skills are smart. The router just needs to know which skills to wake up and in what order. Intent taxonomy → skill chain templates → parallel execution → synthesis.
+  </div>
+</div>
+
+<!-- Treasury Domain -->
+<div class="section treasury">
+  <div class="section-header">
+    <span class="section-icon">💰</span>
+    <span class="section-title">Treasury Domain</span>
+    <span class="section-count">5 skills</span>
+  </div>
+  <div class="skill-grid">
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Cash Analyst</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"Where is my money right now?"</div>
+      <div class="card-persona"><strong>Persona:</strong> Seasoned treasury analyst. Detail-oriented, real-time focused. "I know where every dollar is, right now."</div>
+      <div class="maps-to"><span class="map-tag">bank_accounts_tool.rb</span><span class="map-tag">cash_position_tool.rb</span><span class="map-tag">metrics_tool.rb</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Daily Cash Positioning</span>
+            <span class="fw-tag">Bank Concentration Analysis</span>
+            <span class="fw-tag">Cash Flow Matrix</span>
+            <span class="fw-tag">Idle Cash Detection</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Data Flow</div>
+          <div class="data-reads">
+            <div class="data-col"><div class="data-col-title" style="color:#5DF7B5;">Own Data</div><div class="data-item">cash/positions.json</div><div class="data-item">cash/daily_balances.json</div><div class="data-item">accounts/all.json</div></div>
+            <div class="data-col"><div class="data-col-title" style="color:#60A5FA;">Cross-Skill Reads</div><div class="data-item">← Integration Manager (entities)</div><div class="data-item">← FX Analyst (rates)</div></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Pushback Examples</div>
+          <div class="pushback-quote">"You're checking cash position daily but your payments run weekly. You're missing intra-week liquidity crunches."</div>
+          <div class="pushback-quote">"80% of your cash is at one bank. That's concentration risk."</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Output Contract</div>
+          <div class="output-row">
+            <div class="output-box"><div class="output-title" style="color:#C084FC;">💬 Human</div><div class="output-text">Consolidated position with deltas, alerts, anomalies</div></div>
+            <div class="output-box"><div class="output-title" style="color:#5DF7B5;">📊 JSON</div><div class="output-text">positions.json — balances by account, entity, currency</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Payment Analyst</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"Every payment should be the cheapest, fastest, safest route."</div>
+      <div class="card-persona"><strong>Persona:</strong> Payments specialist. Security-first, efficiency-obsessed.</div>
+      <div class="maps-to"><span class="map-tag">Airwallex services</span><span class="map-tag">approval workflows</span><span class="map-tag">bills/OCR</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Payment Routing Optimization</span>
+            <span class="fw-tag">Approval Chain Resolution</span>
+            <span class="fw-tag">Duplicate Detection</span>
+            <span class="fw-tag">Fee Optimization</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Data Flow</div>
+          <div class="data-reads">
+            <div class="data-col"><div class="data-col-title" style="color:#5DF7B5;">Own Data</div><div class="data-item">payments/pending.json</div><div class="data-item">payments/history.json</div><div class="data-item">counterparties/all.json</div></div>
+            <div class="data-col"><div class="data-col-title" style="color:#60A5FA;">Cross-Skill Reads</div><div class="data-item">← Controls Auditor (rules)</div><div class="data-item">← FX Analyst (rates)</div><div class="data-item">← Cash Analyst (balances)</div></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Pushback Examples</div>
+          <div class="pushback-quote">"You sent 15 domestic wires last month at $35 each. 12 could have been ACH at $0.50. That's $414 in unnecessary fees."</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Child Skills</div>
+          <div class="child-skills"><span class="child-tag">Controls Auditor</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">FX Analyst</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"Every unhedged position is a bet. Make sure it's intentional."</div>
+      <div class="card-persona"><strong>Persona:</strong> Currency strategist. Market-aware, hedging-focused.</div>
+      <div class="maps-to"><span class="map-tag">FX rates model</span><span class="map-tag">exchange rate parsers</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Exposure Mapping</span>
+            <span class="fw-tag">Hedging Strategy</span>
+            <span class="fw-tag">Rate Comparison</span>
+            <span class="fw-tag">FX Impact Attribution</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Pushback Examples</div>
+          <div class="pushback-quote">"Your EUR exposure is $1.2M unhedged. At current vol, that's $60K of risk you haven't acknowledged."</div>
+          <div class="pushback-quote">"Your bank quoted 1.0842 on EUR/USD. Mid-market is 1.0830. That's 11bps spread — Airwallex does it cheaper."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Yield Optimizer</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"Idle cash is a tax on your runway."</div>
+      <div class="card-persona"><strong>Persona:</strong> Investment analyst. Return-focused within risk constraints.</div>
+      <div class="maps-to"><span class="map-tag">idle-cash-insight.tsx</span><span class="map-tag">Yield Hunter svc</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Idle Cash Identification</span>
+            <span class="fw-tag">Yield Ladder</span>
+            <span class="fw-tag">Opportunity Cost Calculator</span>
+            <span class="fw-tag">Liquidity Buffer Sizing</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Child Skills</div>
+          <div class="child-skills"><span class="child-tag">OptiX Solver</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Liquidity Planner</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"I worry about next month so you don't have to."</div>
+      <div class="card-persona"><strong>Persona:</strong> Treasury planner. Forward-looking, scenario-driven.</div>
+      <div class="maps-to"><span class="map-tag">forecast_tool.rb</span><span class="map-tag">simulation_context_tool.rb</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Days Cash on Hand</span>
+            <span class="fw-tag">Shortfall Detection</span>
+            <span class="fw-tag">Funding Gap Analysis</span>
+            <span class="fw-tag">Maturity Ladder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Risk Domain -->
+<div class="section risk">
+  <div class="section-header">
+    <span class="section-icon">🛡️</span>
+    <span class="section-title">Risk Domain</span>
+    <span class="section-count">3 skills</span>
+  </div>
+  <div class="skill-grid">
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Risk Analyst</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"What you don't measure will eventually bite you."</div>
+      <div class="card-persona"><strong>Persona:</strong> Chief Risk Officer. Cautious, analytical, zero tolerance for blind spots.</div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Treasury Risk Register</span>
+            <span class="fw-tag">Risk Scoring Matrix</span>
+            <span class="fw-tag">Control Effectiveness</span>
+            <span class="fw-tag">Stress Testing</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Cross-Skill Reads</div>
+          <div class="detail-list" style="font-size:11px;color:#999;">Reads from ALL treasury domain outputs — Cash, Payments, FX, Yield, Liquidity. The Risk Analyst sees everything.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Compliance Analyst</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"Rules exist for a reason. My job is to know them all."</div>
+      <div class="card-persona"><strong>Persona:</strong> Compliance officer. Rule-bound, audit-trail obsessed.</div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags"><span class="fw-tag">OFAC/AML Screening</span><span class="fw-tag">KYC Checks</span><span class="fw-tag">Regulatory Reporting</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Controls Auditor</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"Every exception tells a story. Most are bad."</div>
+      <div class="card-persona"><strong>Persona:</strong> Internal auditor. Segregation of duties, approval compliance.</div>
+      <div class="maps-to"><span class="map-tag">financial-controls</span><span class="map-tag">policies</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags"><span class="fw-tag">Segregation of Duties</span><span class="fw-tag">Approval Workflow Compliance</span><span class="fw-tag">Exception Tracking</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FP&A Domain -->
+<div class="section fpa">
+  <div class="section-header">
+    <span class="section-icon">📊</span>
+    <span class="section-title">FP&A Domain</span>
+    <span class="section-count">3 skills</span>
+  </div>
+  <div class="skill-grid">
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Forecast Analyst</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"Every forecast is wrong. The question is how wrong and in which direction."</div>
+      <div class="card-persona"><strong>Persona:</strong> FP&A lead. Model-driven, scenario-obsessed.</div>
+      <div class="maps-to"><span class="map-tag">forecast_tool.rb</span><span class="map-tag">create_scenario_tool.rb</span><span class="map-tag">compare_scenarios_tool.rb</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Driver-Based Forecasting</span>
+            <span class="fw-tag">Tri-Scenario Analysis</span>
+            <span class="fw-tag">Runway Calculation</span>
+            <span class="fw-tag">Sensitivity Analysis</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Data Flow</div>
+          <div class="data-reads">
+            <div class="data-col"><div class="data-col-title" style="color:#F59E0B;">Own Data</div><div class="data-item">forecast/scenarios/</div><div class="data-item">forecast/assumptions.json</div></div>
+            <div class="data-col"><div class="data-col-title" style="color:#60A5FA;">Cross-Skill Reads</div><div class="data-item">← Cash Analyst (actuals)</div><div class="data-item">← Integration Manager (HubSpot)</div><div class="data-item">← Payment Analyst (patterns)</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Variance Analyst</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"The gap between plan and actual is where the story lives."</div>
+      <div class="card-persona"><strong>Persona:</strong> Controller. Variance decomposition, root cause analysis.</div>
+      <div class="maps-to"><span class="map-tag">reconciliation</span></div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Reporting Analyst</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"Board-ready in one click."</div>
+      <div class="card-persona"><strong>Persona:</strong> Reporting specialist. Structured, deadline-driven.</div>
+      <div class="maps-to"><span class="map-tag">reports</span><span class="map-tag">CSV export</span></div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Child Skills</div>
+          <div class="child-skills"><span class="child-tag">Agent Shell (Python)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Domain -->
+<div class="section data-domain">
+  <div class="section-header">
+    <span class="section-icon">🔌</span>
+    <span class="section-title">Data Domain</span>
+    <span class="section-count">4 skills</span>
+  </div>
+  <div class="skill-grid">
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Bank Connector</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"Get the data in. Plaid, Quiltt, manual — whatever it takes."</div>
+      <div class="maps-to"><span class="map-tag">Plaid services</span><span class="map-tag">Quiltt services</span><span class="map-tag">manual connections</span></div>
+    </div>
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Transaction Classifier</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"Categorize, tag, enrich every transaction automatically."</div>
+      <div class="maps-to"><span class="map-tag">ai_transaction_categorization</span><span class="map-tag">transaction_search_tool.rb</span></div>
+    </div>
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Reconciliation Engine</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"Match, verify, flag discrepancies. No manual spreadsheet reconciliation."</div>
+      <div class="maps-to"><span class="map-tag">contractual_transactions_tool.rb</span></div>
+    </div>
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Integration Manager</span><span class="card-status status-extract">Extract</span></div>
+      <div class="card-tagline">"QuickBooks, HubSpot, ERP — all synced, all clean."</div>
+      <div class="maps-to"><span class="map-tag">QuickBooks sync</span><span class="map-tag">HubSpot</span><span class="map-tag">API integrations</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Optimization Domain -->
+<div class="section optimization">
+  <div class="section-header">
+    <span class="section-icon">⚡</span>
+    <span class="section-title">Optimization Domain</span>
+    <span class="section-count">2 skills</span>
+  </div>
+  <div class="skill-grid">
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">OptiX Solver</span><span class="card-status status-connect">Connect</span></div>
+      <div class="card-tagline">"Mathematical treasury optimization. 5,500 lines of Pyomo/CBC."</div>
+      <div class="card-persona"><strong>Status:</strong> EXISTS but disconnected. Needs REST API wrapper to become agent-accessible.</div>
+      <div class="maps-to"><span class="map-tag">optix repo (5,500 lines)</span></div>
+    </div>
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Yield Hunter</span><span class="card-status status-connect">Connect</span></div>
+      <div class="card-tagline">"Scan live rates across banks. Find the best yield."</div>
+      <div class="card-persona"><strong>Status:</strong> EXISTS as separate microservice. Needs agent tool integration.</div>
+      <div class="maps-to"><span class="map-tag">yield-hunter repo</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Meta Skills -->
+<div class="section meta-domain">
+  <div class="section-header">
+    <span class="section-icon">🎯</span>
+    <span class="section-title">Meta Skills</span>
+    <span class="section-count">3 skills</span>
+  </div>
+  <div class="skill-grid">
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Onboarding Agent</span><span class="card-status status-redesign">Redesign</span></div>
+      <div class="card-tagline">"The first 5 minutes must feel like a superpower."</div>
+      <div class="card-persona"><strong>The critical skill.</strong> Manages the Trust Ladder: Zero trust → Conversation → Account → Dashboard → Spreadsheet → Execution.</div>
+      <div class="card-detail">
+        <div class="detail-section">
+          <div class="detail-label">Frameworks</div>
+          <div class="framework-tags">
+            <span class="fw-tag">Trust Ladder</span>
+            <span class="fw-tag">Value-Before-Data</span>
+            <span class="fw-tag">90-Second Test</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Pushback Examples</div>
+          <div class="pushback-quote">"You have $2M earning 0.1%. At 4.5%, that's $88K/year you're leaving on the table. Want to see the real number with your actual bank data?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Health Score</span><span class="card-status status-new">New Skill</span></div>
+      <div class="card-tagline">"One number. 0-100. How healthy is your treasury?"</div>
+      <div class="card-persona"><strong>Composite skill.</strong> Aggregates: Days cash on hand, bank concentration, idle cash %, FX exposure, control compliance, forecast accuracy.</div>
+    </div>
+
+    <div class="skill-card" onclick="toggleCard(this)">
+      <div class="card-top"><span class="card-name">Insight Generator</span><span class="card-status status-enhance">Enhance</span></div>
+      <div class="card-tagline">"The proactive engine. Alerts you before you ask."</div>
+      <div class="card-persona"><strong>The missing link.</strong> Runs continuously. Triggers skills when thresholds are crossed. Idle cash → Yield Optimizer. Shortfall → Liquidity Planner. Unusual txn → Risk Analyst.</div>
+      <div class="maps-to"><span class="map-tag">Insight model (5 types)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Migration Timeline -->
+<div style="margin-top:40px;">
+  <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">📅 Migration Path</div>
+  <div class="timeline">
+    <div class="phase" style="border-color:#5DF7B5;">
+      <div class="phase-num" style="color:#5DF7B5;">Phase 1</div>
+      <div class="phase-name">Extract</div>
+      <div class="phase-time">Weeks 1-2</div>
+      <div class="phase-desc">Decompose monolithic agent prompt into skill files. No code changes. Just documentation extraction into SKILL.md files.</div>
+    </div>
+    <div class="phase" style="border-color:#F59E0B;">
+      <div class="phase-num" style="color:#F59E0B;">Phase 2</div>
+      <div class="phase-name">Route</div>
+      <div class="phase-time">Weeks 3-4</div>
+      <div class="phase-desc">Add intent classification. Router loads relevant skill file(s). Same agent, focused persona per query type.</div>
+    </div>
+    <div class="phase" style="border-color:#8B5CF6;">
+      <div class="phase-num" style="color:#8B5CF6;">Phase 3</div>
+      <div class="phase-name">Isolate</div>
+      <div class="phase-time">Weeks 5-8</div>
+      <div class="phase-desc">JSON schemas per skill. Structured data layer. Cross-skill reads. Add missing skills (Risk, Payment, FX).</div>
+    </div>
+    <div class="phase" style="border-color:#EC4899;">
+      <div class="phase-num" style="color:#EC4899;">Phase 4</div>
+      <div class="phase-name">Connect</div>
+      <div class="phase-time">Weeks 9-12</div>
+      <div class="phase-desc">Wire OptiX + Yield Hunter. Proactive triggers. Agent Shell. The skill tree starts compounding.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="summary-bar">
+  <div class="summary-stat"><div class="stat-num">20</div><div class="stat-label">Total Skills</div></div>
+  <div class="summary-stat"><div class="stat-num">70%</div><div class="stat-label">Already Exist in Codebase</div></div>
+  <div class="summary-stat"><div class="stat-num">6</div><div class="stat-label">Domains</div></div>
+  <div class="summary-stat"><div class="stat-num">12</div><div class="stat-label">Weeks to Full Architecture</div></div>
+</div>
+
+<div style="text-align:center;padding:32px 0;color:#555;font-size:11px;">
+  TreasuryPath · Skill Tree Architecture Proposal · Feb 2026<br>
+  <span style="color:#5DF7B5;">The moat:</span> Open source the framework. Keep the treasury skills proprietary.
+</div>
+
+</div>
+
+<script>
+function toggleCard(el) {
+  if (el.classList.contains('expanded')) {
+    el.classList.remove('expanded');
+  } else {
+    document.querySelectorAll('.skill-card.expanded').forEach(c => c.classList.remove('expanded'));
+    el.classList.add('expanded');
+  }
+}
+</script>
+</body>
+</html>
