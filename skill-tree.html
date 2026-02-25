@@ -14,6 +14,22 @@
   .top-bar h1 span { color: #5DF7B5; }
   .top-bar .meta { font-size: 11px; color: #666; }
   .top-bar .badge { background: #5DF7B520; color: #5DF7B5; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 600; margin-left: 8px; }
+  .lang-toggle { background: #ffffff10; border: 1px solid #2a2a4a; color: #ccc; font-size: 11px; padding: 4px 10px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .lang-toggle:hover { border-color: #5DF7B5; color: #5DF7B5; }
+
+  /* README banner */
+  .readme-banner { background: linear-gradient(135deg, #1e1e38, #2a1e3a); border: 1px solid #6B4DB030; border-radius: 16px; padding: 24px; margin-bottom: 28px; }
+  .readme-banner h2 { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .readme-banner .tldr { background: #5DF7B510; border: 1px solid #5DF7B520; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 12px; color: #ccc; line-height: 1.7; }
+  .readme-banner .tldr strong { color: #5DF7B5; }
+  .readme-list { font-size: 12px; color: #999; line-height: 1.8; padding-left: 16px; }
+  .readme-list li { margin-bottom: 4px; }
+  .readme-list li strong { color: #ddd; }
+  .readme-list code { background: #15152a; padding: 1px 5px; border-radius: 4px; font-size: 11px; color: #5DF7B5; }
+  .readme-collapse { background: none; border: none; color: #666; font-size: 11px; cursor: pointer; padding: 4px 0; font-family: 'Inter', sans-serif; margin-top: 8px; }
+  .readme-collapse:hover { color: #5DF7B5; }
+  .readme-body { overflow: hidden; transition: max-height 0.3s; }
+  .readme-body.collapsed { max-height: 0; }
 
   .board { padding: 24px; max-width: 1400px; margin: 0 auto; }
 
@@ -190,10 +206,48 @@
     <h1>Treasury<span>Path</span> Skill Tree</h1>
     <span class="badge">ARCHITECTURE PROPOSAL</span>
   </div>
-  <div class="meta">Feb 25, 2026 · For Adam & Engineering · Click any skill to expand</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">🇹🇷 Türkçe</button>
+    <div class="meta" data-i18n="meta">Feb 25, 2026 · For Adam & Engineering · Click any skill to expand</div>
+  </div>
 </div>
 
 <div class="board">
+
+<!-- README -->
+<div class="readme-banner" id="readme">
+  <h2>📖 <span data-i18n="readme-title">How to Read This Document</span></h2>
+  <div class="tldr">
+    <strong data-i18n="readme-tldr-label">TL;DR:</strong> <span data-i18n="readme-tldr">We're proposing to decompose TreasuryPath's monolithic AI agent into 20 specialized skills across 6 domains. 70% of these skills already exist in the codebase as tools/features — the work is decomposition and routing, not building from scratch. This board maps every skill, its data dependencies, and a 12-week migration path.</span>
+  </div>
+  <div class="readme-body" id="readme-body">
+    <h3 style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;" data-i18n="readme-what-title">What is a "skill"?</h3>
+    <ul class="readme-list">
+      <li data-i18n="readme-what-1">A <strong>skill</strong> = a markdown playbook (500-1,000 lines) that gives the AI a specific persona, domain frameworks, data paths, pushback rules, and an output contract.</li>
+      <li data-i18n="readme-what-2">Think of it as: <strong>the difference between "GPT with bank data" and "a treasury analyst who's been at the company for 5 years."</strong></li>
+      <li data-i18n="readme-what-3">Each skill reads structured data (its own + other skills'), applies domain frameworks, and produces both human-readable advice and machine-readable JSON.</li>
+    </ul>
+
+    <h3 style="font-size:13px;font-weight:700;color:#fff;margin:14px 0 8px;" data-i18n="readme-how-title">How to use this board</h3>
+    <ul class="readme-list">
+      <li data-i18n="readme-how-1"><strong>Click any skill card</strong> to expand its full spec: persona, frameworks, data flow, pushback examples, output contract, and child skills.</li>
+      <li data-i18n="readme-how-2"><strong>Status badges</strong> tell you the migration effort: <code>EXTRACT</code> = already exists, just needs decomposition. <code>NEW SKILL</code> = needs to be built. <code>CONNECT</code> = exists as a separate service, needs API wrapper. <code>ENHANCE</code> = exists but needs upgrades. <code>REDESIGN</code> = needs rethinking.</li>
+      <li data-i18n="readme-how-3"><strong>Green code tags</strong> at the bottom of each card show which existing files/services map to this skill (e.g., <code>bank_accounts_tool.rb</code>).</li>
+      <li data-i18n="readme-how-4"><strong>💬 Notes button</strong> (bottom right) — add your feedback, questions, or concerns. Pick your name and which skill the note is about. Press <code>N</code> to quick-open.</li>
+      <li data-i18n="readme-how-5"><strong>The Orchestrator section</strong> at the top shows how a single user question chains through multiple skills. This is the routing architecture.</li>
+    </ul>
+
+    <h3 style="font-size:13px;font-weight:700;color:#fff;margin:14px 0 8px;" data-i18n="readme-ask-title">What we need from you</h3>
+    <ul class="readme-list">
+      <li data-i18n="readme-ask-1"><strong>Feasibility check:</strong> Do the "EXTRACT" skills map correctly to the existing codebase? Are we missing dependencies?</li>
+      <li data-i18n="readme-ask-2"><strong>Priority input:</strong> Which domain should we decompose first? Treasury is the obvious choice, but engineering effort may differ.</li>
+      <li data-i18n="readme-ask-3"><strong>Data layer:</strong> The cross-skill data flow proposes PostgreSQL JSONB. Does this fit your current architecture, or should we consider alternatives?</li>
+      <li data-i18n="readme-ask-4"><strong>Router design:</strong> Intent classification → skill chain. Should this be a lightweight LLM call, a rules engine, or something else?</li>
+      <li data-i18n="readme-ask-5"><strong>Timeline reality check:</strong> The 12-week plan is aggressive. Where do you see the biggest risks?</li>
+    </ul>
+  </div>
+  <button class="readme-collapse" onclick="toggleReadme()" id="readme-toggle" data-i18n="readme-collapse">▲ Collapse instructions</button>
+</div>
 
 <!-- Orchestrator -->
 <div class="orchestrator">
@@ -767,6 +821,134 @@ document.addEventListener('keydown', e => {
     addNote();
   }
 });
+
+// README toggle
+function toggleReadme() {
+  const body = document.getElementById('readme-body');
+  const btn = document.getElementById('readme-toggle');
+  body.classList.toggle('collapsed');
+  btn.textContent = body.classList.contains('collapsed')
+    ? (currentLang === 'tr' ? '▼ Talimatları göster' : '▼ Show instructions')
+    : (currentLang === 'tr' ? '▲ Talimatları gizle' : '▲ Collapse instructions');
+}
+
+// i18n
+let currentLang = 'en';
+const TR = {
+  'meta': '25 Şubat 2026 · Adam ve Mühendislik için · Genişletmek için herhangi bir beceriye tıklayın',
+  'readme-title': 'Bu Dokümanı Nasıl Okumalısınız',
+  'readme-tldr-label': 'ÖZET:',
+  'readme-tldr': 'TreasuryPath\'in monolitik yapay zeka ajanını 6 alan genelinde 20 uzmanlaşmış beceriye ayrıştırmayı öneriyoruz. Bu becerilerin %70\'i zaten kod tabanında araçlar/özellikler olarak mevcut — yapılacak iş sıfırdan inşa etmek değil, ayrıştırma ve yönlendirmedir. Bu pano her beceriyi, veri bağımlılıklarını ve 12 haftalık geçiş yolunu haritalıyor.',
+  'readme-what-title': '"Beceri" nedir?',
+  'readme-what-1': 'Bir <strong>beceri</strong> = yapay zekaya belirli bir kişilik, alan çerçeveleri, veri yolları, itiraz kuralları ve çıktı sözleşmesi veren bir markdown oyun kitabı (500-1.000 satır).',
+  'readme-what-2': 'Şöyle düşünün: <strong>"banka verileriyle GPT" ile "şirkette 5 yıldır çalışan bir hazine analisti" arasındaki fark.</strong>',
+  'readme-what-3': 'Her beceri yapılandırılmış verileri okur (kendi + diğer becerilerin), alan çerçevelerini uygular ve hem insan tarafından okunabilir tavsiye hem de makine tarafından okunabilir JSON üretir.',
+  'readme-how-title': 'Bu panoyu nasıl kullanmalısınız',
+  'readme-how-1': 'Tam özelliklerini görmek için <strong>herhangi bir beceri kartına tıklayın</strong>: kişilik, çerçeveler, veri akışı, itiraz örnekleri, çıktı sözleşmesi ve alt beceriler.',
+  'readme-how-2': '<strong>Durum rozetleri</strong> geçiş çabasını gösterir: <code>EXTRACT</code> = zaten mevcut, sadece ayrıştırma gerekiyor. <code>NEW SKILL</code> = inşa edilmesi gerekiyor. <code>CONNECT</code> = ayrı bir servis olarak mevcut, API sarmalayıcı gerekiyor. <code>ENHANCE</code> = mevcut ama yükseltme gerekiyor. <code>REDESIGN</code> = yeniden düşünme gerekiyor.',
+  'readme-how-3': 'Her kartın altındaki <strong>yeşil kod etiketleri</strong> bu beceriye hangi mevcut dosyaların/servislerin eşlendiğini gösterir (ör. <code>bank_accounts_tool.rb</code>).',
+  'readme-how-4': '<strong>💬 Notlar butonu</strong> (sağ alt) — geri bildirim, soru veya endişelerinizi ekleyin. Adınızı ve notun hangi beceriyle ilgili olduğunu seçin. Hızlı açmak için <code>N</code> tuşuna basın.',
+  'readme-how-5': '<strong>Orkestratör bölümü</strong> (üstte) tek bir kullanıcı sorusunun birden fazla beceri üzerinden nasıl zincirleme çalıştığını gösterir. Bu yönlendirme mimarisidir.',
+  'readme-ask-title': 'Sizden ne bekliyoruz',
+  'readme-ask-1': '<strong>Fizibilite kontrolü:</strong> "EXTRACT" becerileri mevcut kod tabanına doğru şekilde eşleniyor mu? Eksik bağımlılıklar var mı?',
+  'readme-ask-2': '<strong>Öncelik girdisi:</strong> Hangi alanı önce ayrıştırmalıyız? Hazine bariz seçim, ancak mühendislik çabası farklılık gösterebilir.',
+  'readme-ask-3': '<strong>Veri katmanı:</strong> Beceriler arası veri akışı PostgreSQL JSONB öneriyor. Bu mevcut mimarinize uyuyor mu, yoksa alternatifler mi değerlendirmeliyiz?',
+  'readme-ask-4': '<strong>Yönlendirici tasarımı:</strong> Niyet sınıflandırma → beceri zinciri. Bu hafif bir LLM çağrısı mı, kural motoru mu, yoksa başka bir şey mi olmalı?',
+  'readme-ask-5': '<strong>Zaman çizelgesi gerçeklik kontrolü:</strong> 12 haftalık plan agresif. En büyük riskleri nerede görüyorsunuz?',
+  'readme-collapse': '▲ Talimatları gizle',
+
+  // Orchestrator
+  'orch-title': '🧠 CFO Ajanı — Orkestratör',
+  'orch-subtitle': 'Niyeti yönlendirir, çoklu beceri yanıtlarını birleştirir, proaktif uyarıları tetikler. Her şeyden okuyan tek beceri.',
+  'orch-principle': 'Yönlendirici akıllı olmak zorunda değil. Beceriler akıllıdır. Yönlendirici sadece hangi becerileri uyandıracağını ve hangi sırayla bilmelidir. Niyet taksonomisi → beceri zincir şablonları → paralel yürütme → sentez.',
+
+  // Domain headers
+  'treasury-title': 'Hazine Alanı',
+  'risk-title': 'Risk Alanı',
+  'fpa-title': 'FP&A Alanı',
+  'data-title': 'Veri Alanı',
+  'optimization-title': 'Optimizasyon Alanı',
+  'meta-title': 'Meta Beceriler',
+
+  // Migration
+  'migration-title': '📅 Geçiş Yolu',
+  'phase1-name': 'Ayıklama',
+  'phase1-desc': 'Monolitik ajan istemini beceri dosyalarına ayrıştır. Kod değişikliği yok. Sadece SKILL.md dosyalarına dokümantasyon çıkarma.',
+  'phase2-name': 'Yönlendirme',
+  'phase2-desc': 'Niyet sınıflandırma ekle. Yönlendirici ilgili beceri dosyalarını yükler. Aynı ajan, sorgu türüne göre odaklanmış kişilik.',
+  'phase3-name': 'İzolasyon',
+  'phase3-desc': 'Beceri başına JSON şemaları. Yapılandırılmış veri katmanı. Beceriler arası okumalar. Eksik becerileri ekle (Risk, Ödeme, FX).',
+  'phase4-name': 'Bağlantı',
+  'phase4-desc': 'OptiX + Yield Hunter\'ı bağla. Proaktif tetikleyiciler. Ajan Kabuğu. Beceri ağacı bileşik getiri başlatır.',
+
+  // Stats
+  'stat-skills': 'Toplam Beceri',
+  'stat-exist': 'Kod Tabanında Zaten Mevcut',
+  'stat-domains': 'Alan',
+  'stat-weeks': 'Tam Mimariye Hafta',
+
+  // Footer
+  'footer-moat': 'Siper: Çerçeveyi açık kaynak yap. Hazine becerilerini tescilli tut.'
+};
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'tr' : 'en';
+  const btn = document.getElementById('lang-btn');
+  btn.textContent = currentLang === 'en' ? '🇹🇷 Türkçe' : '🇬🇧 English';
+  applyLang();
+}
+
+function applyLang() {
+  if (currentLang === 'tr') {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (TR[key]) {
+        if (!el.getAttribute('data-en')) el.setAttribute('data-en', el.innerHTML);
+        el.innerHTML = TR[key];
+      }
+    });
+    // Translate section titles
+    const sectionMap = {'Treasury Domain':'Hazine Alanı','Risk Domain':'Risk Alanı','FP&A Domain':'FP&A Alanı','Data Domain':'Veri Alanı','Optimization Domain':'Optimizasyon Alanı','Meta Skills':'Meta Beceriler'};
+    document.querySelectorAll('.section-title').forEach(el => {
+      if (sectionMap[el.textContent]) {
+        if (!el.getAttribute('data-en')) el.setAttribute('data-en', el.textContent);
+        el.textContent = sectionMap[el.textContent];
+      }
+    });
+    // Orchestrator
+    const ot = document.querySelector('.orch-title');
+    if (ot && !ot.getAttribute('data-en')) { ot.setAttribute('data-en', ot.textContent); ot.textContent = TR['orch-title']; }
+    else if (ot) ot.textContent = TR['orch-title'];
+    const os = document.querySelector('.orch-subtitle');
+    if (os && !os.getAttribute('data-en')) { os.setAttribute('data-en', os.textContent); os.textContent = TR['orch-subtitle']; }
+    else if (os) os.textContent = TR['orch-subtitle'];
+    // Migration phases
+    const phases = document.querySelectorAll('.phase-name');
+    const phaseNames = [TR['phase1-name'],TR['phase2-name'],TR['phase3-name'],TR['phase4-name']];
+    phases.forEach((p,i) => {
+      if (!p.getAttribute('data-en')) p.setAttribute('data-en', p.textContent);
+      if (phaseNames[i]) p.textContent = phaseNames[i];
+    });
+    const phaseDescs = document.querySelectorAll('.phase-desc');
+    const descTr = [TR['phase1-desc'],TR['phase2-desc'],TR['phase3-desc'],TR['phase4-desc']];
+    phaseDescs.forEach((p,i) => {
+      if (!p.getAttribute('data-en')) p.setAttribute('data-en', p.textContent);
+      if (descTr[i]) p.textContent = descTr[i];
+    });
+    // Stats
+    const statLabels = document.querySelectorAll('.stat-label');
+    const statTr = [TR['stat-skills'],TR['stat-exist'],TR['stat-domains'],TR['stat-weeks']];
+    statLabels.forEach((s,i) => {
+      if (!s.getAttribute('data-en')) s.setAttribute('data-en', s.textContent);
+      if (statTr[i]) s.textContent = statTr[i];
+    });
+  } else {
+    // Restore English
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-en');
+    });
+  }
+}
 
 // Init
 renderNotes();
