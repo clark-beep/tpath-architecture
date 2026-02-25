@@ -81,7 +81,7 @@
 
 <div class="header">
   <h1>Work<span class="accent">OS</span></h1>
-  <p>How the WorkOS skill system turns a general-purpose AI into a team of domain experts. Click a skill below to see exactly how it works.</p>
+  <p>What happens when you give an AI a 1,000-line playbook instead of a 3-line system prompt. Click a skill below to see the full lifecycle.</p>
 </div>
 
 <!-- Skill Selector -->
@@ -111,20 +111,20 @@
 <!-- ==================== CEO ==================== -->
 <div id="skill-ceo" class="skill-section active">
 <div class="intro-box"><div class="callout">
-  <strong>The CEO skill</strong> sits above the entire C-suite. When Jeff says <code>/ceo</code>, the AI becomes a strategic sparring partner for the decisions that can't be delegated — capital allocation, organizational design, and the moments when the buck truly stops. It reads data from <em>every other skill</em> because the CEO sees the whole picture.
+  <strong>The CEO skill</strong> handles decisions that can't be delegated: capital allocation, org design, the calls that keep you up at night. When you say <code>/ceo</code>, it reads data from every other skill because the CEO needs the full picture.
 </div></div>
 <div class="container">
   <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
 
-  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/ceo</code></div><div class="subtitle">Jeff types the command from any channel</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/ceo "should we raise now or wait?"</code>. Gateway loads <code>skills/ceo/SKILL.md</code> — 421 lines of founder-CEO strategy, frameworks, and pushback protocols. The AI becomes a wartime counselor who's read Ben Horowitz, studied systems thinking, and won't let Jeff avoid the hard calls.</div></div></div>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/ceo</code></div><div class="subtitle">Type the command from any channel</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">You say <code>/ceo "should we raise now or wait?"</code>. Gateway loads <code>skills/ceo/SKILL.md</code> — 421 lines of founder-CEO strategy, frameworks, and pushback protocols. The AI loads a wartime counselor persona that won't let you avoid the hard calls.</div></div></div>
   <div class="flow-arrow">↓</div>
 
-  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load the Full Picture</div><div class="subtitle">CEO reads ALL skill data — the only skill that does this</div></div><span class="arrow">▶</span></div><div class="node-body">
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load the Full Picture</div><div class="subtitle">CEO reads ALL skill data</div></div><span class="arrow">▶</span></div><div class="node-body">
     <div class="data-grid">
       <div>
         <div class="data-col-label" style="color:#EF4444;">📂 CEO's Own Data</div>
         <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">strategy.json</div><div class="sn-detail">Vision, current priorities, big bets, existential risks. Wartime or peacetime mode.</div></div>
-        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">hard_conversations.json</div><div class="sn-detail">Conversations Jeff is avoiding. Who, why, and the cost of waiting.</div></div>
+        <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">hard_conversations.json</div><div class="sn-detail">Conversations you're avoiding. Who, why, and the cost of waiting.</div></div>
         <div class="sub-node" style="margin-bottom:6px"><div class="sn-title">decisions/</div><div class="sn-detail">Major CEO decisions with context and outcomes.</div></div>
         <div class="sub-node"><div class="sn-title">board/</div><div class="sn-detail">Board prep, meeting notes, investor relationships.</div></div>
       </div>
@@ -137,7 +137,7 @@
         <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">CTO → data/engineering/</div><div class="sn-detail">Tech health, infra costs, team capacity. "Can we ship fast enough?"</div></div>
       </div>
     </div>
-    <div class="insight-box"><div class="insight-label">👑 The CEO Difference</div><div class="detail">The CEO is the only skill that reads from all four other C-suite data directories. Every other skill reads 1-2 peers. The CEO sees the whole board.</div></div>
+    <div class="insight-box"><div class="insight-label">👑 Why this matters</div><div class="detail">Other skills read 1-2 peers. The CEO reads all four. That's why it can catch misalignment between what the CFO says about runway and what the CMO is spending on pipeline.</div></div>
   </div></div>
   <div class="flow-arrow">↓</div>
 
@@ -170,13 +170,13 @@
 
   <div class="node" onclick="toggleNode(this)"><div class="node-header"><span class="icon">5️⃣</span><div><div class="title">The Sparring Protocol</div><div class="subtitle">Hard truths the CEO needs to hear</div></div><span class="arrow">▶</span></div><div class="node-body">
     <div class="pushback-box" style="border-color:#EF4444;"><div class="pushback-label" style="color:#EF4444;">Example Pushbacks:</div><div class="detail" style="font-style:italic;">"That's a decision you can delegate. What's the decision only YOU can make?"<br><br>"You're solving for this quarter. What does this look like in three years?"<br><br>"You're avoiding the hard conversation. Who do you need to talk to?"<br><br>"You know the answer. You're looking for permission. You don't need it."</div></div>
-    <div class="detail">The CEO skill is the only one that challenges Jeff on <em>whether he should even be doing the work</em>. If it's not a Type 1 decision, it pushes back: "Delegate this. Your job is to set direction, build the team, and make sure there's money. Everything else is someone else's job."</div>
+    <div class="detail">The CEO skill challenges whether you should even be doing the work. If it's not a Type 1 decision, it pushes back: "Delegate this. Your job is direction, team, and capital. Everything else is someone else's job."</div>
   </div></div>
   <div class="flow-arrow">↓</div>
 
   <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">6️⃣</span><div><div class="title">Dual Output: Text + Data</div><div class="subtitle">CEO Sync document + strategy files</div></div><span class="arrow">▶</span></div><div class="node-body">
     <div class="output-grid">
-      <div class="output-card" style="border-color:#C084FC30"><div class="output-card-title" style="color:#C084FC;">💬 CEO Sync (for Jeff)</div><div class="detail"><strong>1. State of the Company</strong> — honest wartime/peacetime assessment<br><strong>2. The One Thing</strong> — single most important focus<br><strong>3. Hard Truth</strong> — what Jeff is probably avoiding<br><strong>4. C-Suite Health</strong> — 🟢/🟡/🔴 per function (CMO, CFO, CPO, CTO)<br><strong>5. Decisions Only You Can Make</strong> — pending Type 1 decisions<br><strong>6. This Week</strong> — 2-3 specific CEO actions</div></div>
+      <div class="output-card" style="border-color:#C084FC30"><div class="output-card-title" style="color:#C084FC;">💬 CEO Sync (for you)</div><div class="detail"><strong>1. State of the Company</strong> — honest wartime/peacetime assessment<br><strong>2. The One Thing</strong> — single most important focus<br><strong>3. Hard Truth</strong> — what you're probably avoiding<br><strong>4. C-Suite Health</strong> — 🟢/🟡/🔴 per function (CMO, CFO, CPO, CTO)<br><strong>5. Decisions Only You Can Make</strong> — pending Type 1 decisions<br><strong>6. This Week</strong> — 2-3 specific CEO actions</div></div>
       <div class="output-card" style="border-color:#5DF7B530"><div class="output-card-title" style="color:#5DF7B5;">📊 Strategy Files (for machines)</div><div class="detail"><strong>strategy.json</strong> — vision, priorities, mode, big bets, risks<br><strong>hard_conversations.json</strong> — tracked conversations with deadlines<br><strong>decisions/</strong> — major decisions with context<br><strong>sync_history.json</strong> — every CEO sync appended<br><br>These files feed the dashboard and future CEO sessions.</div></div>
     </div>
   </div></div>
@@ -196,12 +196,12 @@
 <!-- ==================== CFO ==================== -->
 <div id="skill-cfo" class="skill-section">
 <div class="intro-box"><div class="callout">
-  <strong>The CFO skill</strong> turns the AI into "CJ" — a conversational, dad-joke-friendly finance leader who's rigorous underneath the banter. When Jeff says <code>/cfo</code>, CJ loads financial frameworks, pulls data from across the company, and pushes back hard on bad assumptions. Every conversation produces both human advice and machine-readable JSON.
+  <strong>The CFO skill</strong> turns the AI into "CJ" — a conversational, dad-joke-friendly finance leader who's rigorous underneath the banter. When You say <code>/cfo</code>, CJ loads financial frameworks, pulls data from across the company, and pushes back hard on bad assumptions. Every conversation produces both human advice and machine-readable JSON.
 </div></div>
 <div class="container">
   <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
 
-  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cfo</code></div><div class="subtitle">Jeff types a command in any channel</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cfo "let's talk burn rate"</code>. Gateway loads <code>skills/cfo/SKILL.md</code> — 1,100 lines of finance expertise. The AI becomes CJ with all frameworks, benchmarks, and data paths loaded. Any channel works: Telegram, Discord, Claude Code terminal.</div></div></div>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cfo</code></div><div class="subtitle">Type a command in any channel</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">You say <code>/cfo "let's talk burn rate"</code>. Gateway loads <code>skills/cfo/SKILL.md</code> — 1,100 lines of finance expertise. The AI becomes CJ with all frameworks, benchmarks, and data paths loaded. Any channel works: Telegram, Discord, Claude Code terminal.</div></div></div>
   <div class="flow-arrow">↓</div>
 
   <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load Financial State</div><div class="subtitle">Read own data + pull from other skills</div></div><span class="arrow">▶</span></div><div class="node-body">
@@ -221,7 +221,7 @@
         <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">CTO → data/engineering/</div><div class="sn-detail">Infra spend, headcount, open roles, tech debt.</div></div>
       </div>
     </div>
-    <div class="insight-box"><div class="insight-label">💡 Why Cross-Skill Reads Matter</div><div class="detail">The CFO doesn't work in a vacuum. When Jeff asks "what's our burn multiple?", the answer includes marketing spend from CMO, infra costs from CTO, and product health from CPO.</div></div>
+    <div class="insight-box"><div class="insight-label">💡 Why Cross-Skill Reads Matter</div><div class="detail">The CFO doesn't work in a vacuum. When you ask "what's our burn multiple?", the answer includes marketing spend from CMO, infra costs from CTO, and product health from CPO.</div></div>
   </div></div>
   <div class="flow-arrow">↓</div>
 
@@ -275,12 +275,12 @@
 <!-- ==================== CMO ==================== -->
 <div id="skill-cmo" class="skill-section">
 <div class="intro-box"><div class="callout">
-  <strong>The CMO skill</strong> is a composite GTM leader that blends the sharpest modern go-to-market thinking. Signal-obsessed, AI-native, and allergic to bloat. When Jeff says <code>/cmo</code>, the AI becomes a strategic marketing partner who believes most 2023 playbooks are broken and that a founder with AI agents can outperform a 10-person GTM team.
+  <strong>The CMO skill</strong> is a composite GTM leader that blends the sharpest modern go-to-market thinking. Signal-obsessed, AI-native, and allergic to bloat. When You say <code>/cmo</code>, the AI becomes a strategic marketing partner who believes most 2023 playbooks are broken and that a founder with AI agents can outperform a 10-person GTM team.
 </div></div>
 <div class="container">
   <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
 
-  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cmo</code></div><div class="subtitle">Jeff asks a GTM question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cmo "our pipeline is thin, what do we do?"</code>. Gateway loads 630 lines of GTM strategy. The AI becomes a composite of the best modern GTM thinkers — signal-based selling, AI-native ops, positioning expertise, and bottom-up growth.</div></div></div>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cmo</code></div><div class="subtitle">Ask a GTM question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">You say <code>/cmo "our pipeline is thin, what do we do?"</code>. Gateway loads 630 lines of GTM strategy. The AI becomes a composite of the best modern GTM thinkers — signal-based selling, AI-native ops, positioning expertise, and bottom-up growth.</div></div></div>
   <div class="flow-arrow">↓</div>
 
   <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load GTM State</div><div class="subtitle">Marketing data + financial constraints + product roadmap</div></div><span class="arrow">▶</span></div><div class="node-body">
@@ -362,12 +362,12 @@
 <!-- ==================== CPO ==================== -->
 <div id="skill-cpo" class="skill-section">
 <div class="intro-box"><div class="callout">
-  <strong>The CPO skill</strong> is a strategic product leader obsessed with outcomes over outputs. When Jeff says <code>/cpo</code>, the AI becomes customer-obsessed, anti-feature-factory, and model-aware. It blends timeless product wisdom (Cagan, Gibson Biddle, Doshi) with AI-native thinking (Model Maximalism, the Bottleneck Shift, the Ownership Principle).
+  <strong>The CPO skill</strong> is a strategic product leader obsessed with outcomes over outputs. When You say <code>/cpo</code>, the AI becomes customer-obsessed, anti-feature-factory, and model-aware. It blends timeless product wisdom (Cagan, Gibson Biddle, Doshi) with AI-native thinking (Model Maximalism, the Bottleneck Shift, the Ownership Principle).
 </div></div>
 <div class="container">
   <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
 
-  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cpo</code></div><div class="subtitle">Jeff asks a product question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cpo "should we build the sweep feature or the FX dashboard first?"</code>. Gateway loads 779 lines of product strategy. The AI becomes a product leader who thinks in outcomes, not features, and won't let you ship something nobody asked for.</div></div></div>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cpo</code></div><div class="subtitle">Ask a product question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">You say <code>/cpo "should we build the sweep feature or the FX dashboard first?"</code>. Gateway loads 779 lines of product strategy. The AI becomes a product leader who thinks in outcomes, not features, and won't let you ship something nobody asked for.</div></div></div>
   <div class="flow-arrow">↓</div>
 
   <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load Product State</div><div class="subtitle">Product data + market context + financial constraints</div></div><span class="arrow">▶</span></div><div class="node-body">
@@ -443,12 +443,12 @@
 <!-- ==================== CTO ==================== -->
 <div id="skill-cto" class="skill-section">
 <div class="intro-box"><div class="callout">
-  <strong>The CTO skill</strong> is a pragmatic technical leader who believes in radical simplicity. When Jeff says <code>/cto</code>, the AI becomes an engineering strategist who'd rather ship a monolith than debate microservices, who thinks boring technology wins, and who'll call out resume-driven decisions on sight.
+  <strong>The CTO skill</strong> is a pragmatic technical leader who believes in radical simplicity. When You say <code>/cto</code>, the AI becomes an engineering strategist who'd rather ship a monolith than debate microservices, who thinks boring technology wins, and who'll call out resume-driven decisions on sight.
 </div></div>
 <div class="container">
   <div class="section-divider"><span>The 7-Step Lifecycle</span></div>
 
-  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cto</code></div><div class="subtitle">Jeff asks a technical question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">Jeff says <code>/cto "should we move to Kubernetes?"</code>. Gateway loads 476 lines of technical leadership. The AI becomes a CTO who designs for failure, champions simplicity, and won't let you over-engineer for a scale you don't have.</div></div></div>
+  <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">1️⃣</span><div><div class="title">Invoke: <code>/cto</code></div><div class="subtitle">Ask a technical question</div></div><span class="arrow">▶</span></div><div class="node-body"><div class="detail">You say <code>/cto "should we move to Kubernetes?"</code>. Gateway loads 476 lines of technical leadership. The AI becomes a CTO who designs for failure, champions simplicity, and won't let you over-engineer for a scale you don't have.</div></div></div>
   <div class="flow-arrow">↓</div>
 
   <div class="node open" onclick="toggleNode(this)"><div class="node-header"><span class="icon">2️⃣</span><div><div class="title">Load Engineering State</div><div class="subtitle">Tech stack + budget + product requirements</div></div><span class="arrow">▶</span></div><div class="node-body">
@@ -528,7 +528,7 @@
         <div class="sub-node" style="border-color:#C084FC30"><div class="sn-title">Security (4)</div><div class="sn-detail">Compliance · Privacy · Security Ops · Vendor Risk</div></div>
         <div class="sub-node" style="border-color:#22D3EE30"><div class="sn-title">Personal (6)</div><div class="sn-detail">Coach · Journal · Personal CFO · Travel · Home · Life Reviews</div></div>
       </div>
-      <div class="insight-box"><div class="insight-label">🔑 The Key Insight</div><div class="detail">Skills read from each other through shared JSON files on disk. No APIs, no message queues. Just files. Simple, inspectable, debuggable. The same pattern that makes a solo founder operate like a company with a full C-suite.</div></div>
+      <div class="insight-box"><div class="insight-label">🔑 The Key Insight</div><div class="detail">Skills read from each other through shared JSON files on disk. No APIs, no message queues. Just files you can open in a text editor and see exactly what the AI knows.</div></div>
     </div>
   </div>
 
