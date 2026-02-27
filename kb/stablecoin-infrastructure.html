@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stablecoin Infrastructure: The Layered Stack and What It Means for Treasury | TreasuryPath KB</title>
+<style>
+  :root { --green: #5DF7B5; --purple: #6B4DB0; --black: #000; --charcoal: #595959; --bg: #fafafa; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1a1a1a; background: var(--bg); line-height: 1.7; }
+  .header { background: var(--black); color: white; padding: 2rem 0; border-bottom: 4px solid var(--green); }
+  .header-inner { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+  .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .header .meta { color: #999; font-size: 0.85rem; }
+  .header .badge { display: inline-block; background: var(--purple); color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; margin-right: 8px; }
+  .content { max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+  h2 { color: var(--black); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--green); }
+  h3 { color: var(--purple); font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+  p { margin-bottom: 1rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem; }
+  th { background: var(--black); color: white; padding: 10px 12px; text-align: left; font-weight: 600; }
+  td { padding: 10px 12px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) { background: #f5f5f5; }
+  ul, ol { margin: 0.5rem 0 1.5rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  strong { color: var(--black); }
+  .callout { background: #f0faf5; border-left: 4px solid var(--green); padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+  .callout-purple { background: #f5f0ff; border-left-color: var(--purple); }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+  .footer { max-width: 900px; margin: 3rem auto; padding: 2rem; border-top: 1px solid #ddd; color: #888; font-size: 0.8rem; }
+  a { color: var(--purple); }
+  .tag { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; color: #666; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div style="margin-bottom: 0.75rem;">
+      <span class="badge">KNOWLEDGE BASE</span>
+      <span class="badge" style="background: var(--green); color: var(--black);">MARKET INTEL</span>
+    </div>
+    <h1>Stablecoin Infrastructure: The Layered Stack and What It Means for Treasury</h1>
+    <div class="meta">
+      February 27, 2026 &nbsp;|&nbsp; Source: FXC Intelligence / McKinsey / Payments Association
+      <br>
+      <span class="tag">stablecoins</span>
+      <span class="tag">cross-border payments</span>
+      <span class="tag">treasury</span>
+      <span class="tag">multi-rail</span>
+      <span class="tag">infrastructure</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="callout">
+<strong>TL;DR:</strong> Stablecoin infrastructure is a layered stack, not a single rail. Two provider models are emerging: modular point solutions vs. vertically integrated. As banks (Goldman, Citi, ING, MUFG) launch their own stablecoins, treasury teams face explosive multi-rail complexity. TreasuryPath is positioned as the orchestration layer above all of it.
+</div>
+
+<h2>Summary</h2>
+<p>FXC Intelligence published the first independent buyer's guide benchmarking stablecoin payments infrastructure vendors. The key insight: stablecoin infra is <strong>not</strong> a single "alternative rail." It's a layered stack of interoperating systems that creates significant complexity for cross-border payments providers.</p>
+
+<p>Two provider models are emerging:</p>
+<ol>
+  <li><strong>Modular point solutions</strong> that address specific layers of the stack</li>
+  <li><strong>Vertically integrated, end-to-end infrastructure</strong> providers</li>
+</ol>
+
+<h2>The Stablecoin Infrastructure Stack</h2>
+
+<table>
+  <tr><th>Layer</th><th>Function</th><th>Example Vendors</th></tr>
+  <tr><td><strong>Issuance & custody</strong></td><td>Mint/burn stablecoins, hold reserves</td><td>Circle (USDC), Tether, Paxos</td></tr>
+  <tr><td><strong>Wallet & key management</strong></td><td>Secure storage, signing, access control</td><td>Dfns, Fireblocks</td></tr>
+  <tr><td><strong>On/off ramp</strong></td><td>Fiat-to-stablecoin conversion, bank connectivity</td><td>Bridge, BVNK, Yellow Card</td></tr>
+  <tr><td><strong>Settlement & routing</strong></td><td>Cross-chain movement, transaction execution</td><td>Fireblocks, Orbital, zerohash</td></tr>
+  <tr><td><strong>Compliance & monitoring</strong></td><td>KYC/AML, transaction monitoring, regulatory reporting</td><td>Chainalysis, Elliptic</td></tr>
+  <tr><td style="background: #f0faf5; font-weight: bold;">Orchestration</td><td style="background: #f0faf5;">Multi-rail routing, liquidity management, reconciliation</td><td style="background: #f0faf5; font-weight: bold;">TreasuryPath</td></tr>
+</table>
+
+<p><strong>FXC Buyer's Guide featured vendors:</strong> Bitso Business, Bridge, BVNK, Dfns, Fipto, Fireblocks, Orbital, Triple-A, Yellow Card, zerohash</p>
+
+<h2>Market Data: Stablecoins in Payments (2025-2026)</h2>
+
+<table>
+  <tr><th>Metric</th><th>Value</th><th>Source</th></tr>
+  <tr><td>Actual stablecoin payment volume (2025)</td><td><strong>$390B</strong></td><td>McKinsey + Artemis Analytics</td></tr>
+  <tr><td>B2B payments share</td><td>~$226B (60%)</td><td>McKinsey</td></tr>
+  <tr><td>B2B year-over-year growth</td><td><strong>733%</strong></td><td>McKinsey</td></tr>
+  <tr><td>Cross-border payments (total market)</td><td>$150T+ annually</td><td>G20/FSB</td></tr>
+  <tr><td>G20 cost target (remittances)</td><td>&lt;3% avg by 2027</td><td>FSB</td></tr>
+</table>
+
+<h3>Major Bank Stablecoin Activity</h3>
+
+<div class="callout callout-purple">
+The institutional adoption wave is accelerating. Every major banking consortium is now exploring or actively building stablecoin infrastructure.
+</div>
+
+<table>
+  <tr><th>Entity</th><th>Status</th><th>Detail</th></tr>
+  <tr><td>Goldman, Deutsche Bank, BofA, Citi, UBS + others</td><td>Exploring</td><td>1:1 reserve-backed digital money on public blockchains, G7 currencies</td></tr>
+  <tr><td>ING, UniCredit, CaixaBank + EU banks</td><td>Confirmed launch</td><td>MiCAR-compliant EUR stablecoin</td></tr>
+  <tr><td>MUFG, SMBC, Mizuho (Japan)</td><td>MOU signed</td><td>Joint stablecoin issuance</td></tr>
+  <tr><td>DTCC</td><td>Considering</td><td>Potential DTCC stablecoin</td></tr>
+  <tr><td>Fidelity</td><td>Exploring</td><td>Operating a stablecoin or partnering with issuers</td></tr>
+  <tr><td>Bank of America</td><td>Confirmed interest</td><td>CEO: "We will partner with some of the stablecoin [providers]"</td></tr>
+  <tr><td>Amazon, Expedia</td><td>Rumored (WSJ)</td><td>Stablecoin involvement</td></tr>
+</table>
+
+<h2>Implications for TreasuryPath</h2>
+
+<h3>1. Multi-Rail Complexity Is Exploding</h3>
+<p>Corporate treasury teams are going from managing 2-3 rails (bank wires, ACH, SWIFT) to potentially 5-8+ rails including stablecoins. Each rail has its own settlement times, compliance requirements, liquidity pools, and custody overhead.</p>
+<p><strong>This is exactly what TreasuryPath's Cash Control Tower solves.</strong> As rails multiply, the need for an orchestration layer with unified visibility, intelligent routing, and automated reconciliation becomes critical.</p>
+
+<h3>2. The "Stablecoin Sandwich" Pattern</h3>
+<p>Fiat in → stablecoin transfer → fiat out. For this to work at scale, treasury teams need real-time visibility into stablecoin positions alongside fiat balances, automated FX conversion, cross-chain/off-chain reconciliation, and audit trails that span both worlds.</p>
+<p><strong>No legacy TMS handles this.</strong> Kyriba doesn't. SAP Treasury doesn't. This is greenfield.</p>
+
+<h3>3. B2B Is the Beachhead</h3>
+<p>B2B payments are 60% of stablecoin volume and growing 733% YoY. These are exactly TreasuryPath's target customers.</p>
+<ul>
+  <li><strong>Supplier payments across borders</strong> → Payment routing + FX optimization</li>
+  <li><strong>Intercompany transfers</strong> → Cash pooling + liquidity management</li>
+  <li><strong>Yield on idle stablecoin balances</strong> → Sweep optimization</li>
+  <li><strong>Multi-entity cash visibility</strong> → Cash Control Tower</li>
+</ul>
+
+<h3>4. We're the Orchestrator, Not the Infrastructure</h3>
+<p>TreasuryPath doesn't need to be a stablecoin infrastructure provider. We need to be the <strong>rail-agnostic treasury intelligence layer</strong> that sits above all of them. Whether payments flow over SWIFT, ACH, stablecoins, or any future rail, TreasuryPath provides the unified control plane.</p>
+
+<h3>5. The Compliance Moat</h3>
+<p>As banks issue their own stablecoins, the compliance landscape fragments. Each stablecoin has different regulatory jurisdictions, reporting requirements, and audit standards. A treasury platform that bakes compliance verification into every transaction across every rail becomes essential.</p>
+
+<h2>Competitive Landscape</h2>
+
+<table>
+  <tr><th>Player</th><th>Stablecoin Strategy</th><th>Threat Level</th></tr>
+  <tr><td>Kyriba</td><td>None visible</td><td>Low (legacy architecture)</td></tr>
+  <tr><td>Trovata</td><td>Bank-data focused, no crypto</td><td>Low</td></tr>
+  <tr><td>HighRadius</td><td>AR/AP focused, not treasury-first</td><td>Low</td></tr>
+  <tr><td>Fireblocks</td><td>Infra layer, not treasury management</td><td>Complementary (integration partner)</td></tr>
+  <tr><td>Bridge</td><td>On/off ramp + API</td><td>Complementary</td></tr>
+  <tr><td>BVNK</td><td>Stablecoin payments platform</td><td>Watch (could move upstream)</td></tr>
+  <tr><td>Modern Treasury</td><td>Payment ops, adding stablecoins</td><td>Medium (closest on multi-rail)</td></tr>
+</table>
+
+<div class="callout">
+<strong>Key Insight:</strong> Nobody is building treasury management + stablecoin orchestration together. The infra vendors handle plumbing. Legacy TMS ignores crypto entirely. The gap is the intelligence layer on top.
+</div>
+
+<h2>Action Items</h2>
+<ul>
+  <li>Add stablecoin rail support to product roadmap</li>
+  <li>Explore integration partnerships with Bridge, BVNK, or Fireblocks</li>
+  <li>Consider FXC Intelligence subscription for competitive intel</li>
+  <li>Add "stablecoin-ready" positioning to pitch deck</li>
+  <li>Reach out to Dan Webber as content/research partner</li>
+  <li>Draft content: "Why Your TMS Can't Handle Stablecoins"</li>
+</ul>
+
+</div>
+
+<div class="footer">
+  <strong>TreasuryPath</strong> &nbsp;|&nbsp; Knowledge Base &nbsp;|&nbsp; February 27, 2026<br>
+  Sources: FXC Intelligence, McKinsey + Artemis Analytics, The Payments Association, FSB/G20
+</div>
+
+</body>
+</html>
