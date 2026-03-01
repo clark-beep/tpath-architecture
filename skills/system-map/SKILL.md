@@ -10,24 +10,28 @@ Generate an interactive React Flow mind-map showing an entire system's infrastru
 
 ## How to Use
 
-1. Copy the build prompt from `build-prompt.md`
-2. Fill in the YOUR SYSTEM section with actual infrastructure
-3. Hand to Claude Code (or any coding assistant) in a Next.js + Tailwind project
+1. Copy `spec.md` into your coding agent prompt (this is the invariant build spec)
+2. Create a `data.ts` file following `data-template.ts` with your actual infrastructure
+3. Hand both to Claude Code / Codex in a Next.js + Tailwind project
 4. It generates 7 files under `app/map/` — a complete interactive page
 
 ## Files
-- `build-prompt.md` — The full prompt template with instructions
-- `clark-infrastructure.md` — Pre-filled version for Clark's system (example)
+- `SKILL.md` — This file
+- `spec.md` — Build specification (architecture, layout, interaction, styling). Never changes.
+- `data-template.ts` — TypeScript template with types and example structure. Copy and fill in.
+- `data-clark.ts` — Pre-filled example: Clark's agent infrastructure
+- `smoke-test.md` — Post-build verification checklist
 
 ## Output
 - `/map` page with dark-theme React Flow canvas
 - Radial layout: root → branches → leaves
 - Click nodes for detail panel with cross-branch connections
-- Click edges for relationship details
+- Click edges for relationship details with amber highlighting
 - Collapsible branches, zoom/pan, minimap
+- Fit-to-view + screenshot export button
+- Mobile: tree list fallback (React Flow is desktop-only)
 - Fully typed TypeScript, server components + client components
 
 ## Dependencies
-- Next.js (App Router)
-- Tailwind CSS
-- @xyflow/react
+- Next.js (App Router), Tailwind CSS, @xyflow/react
+- Optional: html-to-image (for screenshot export)
